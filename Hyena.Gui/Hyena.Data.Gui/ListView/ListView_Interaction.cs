@@ -86,7 +86,9 @@ namespace Hyena.Data.Gui
                     vadjustment.ValueChanged -= OnVadjustmentChanged;
                 }
                 vadjustment = value;
-                vadjustment.ValueChanged += OnVadjustmentChanged;
+                if (vadjustment != null) {
+                    vadjustment.ValueChanged += OnVadjustmentChanged;
+                }
                 UpdateAdjustments ();
             }
         }
@@ -102,7 +104,9 @@ namespace Hyena.Data.Gui
                     hadjustment.ValueChanged -= OnHadjustmentChanged;
                 }
                 hadjustment = value;
-                hadjustment.ValueChanged += OnHadjustmentChanged;
+                if (hadjustment != null) {
+                    hadjustment.ValueChanged += OnHadjustmentChanged;
+                }
                 UpdateAdjustments ();
             }
         }
