@@ -99,16 +99,16 @@ namespace Hyena.Widgets
 
             // Copy the widget's pixels to surface, we'll use it to draw the animation
             surface = Window.CreateSimilarSurface (Cairo.Content.ColorAlpha, widget_alloc.Width, widget_alloc.Height);
-            var cr = new Cairo.Context (surface);
-            Gdk.CairoHelper.SetSourceWindow (cr, Window, widget_alloc.X, widget_alloc.Y);
-            cr.Rectangle (0, 0, widget_alloc.Width, widget_alloc.Height);
-            cr.Fill ();
+            using (var cr = new Cairo.Context (surface)) {
+                Gdk.CairoHelper.SetSourceWindow (cr, Window, widget_alloc.X, widget_alloc.Y);
+                cr.Rectangle (0, 0, widget_alloc.Width, widget_alloc.Height);
+                cr.Fill ();
 
-            if (AnimationState != AnimationState.Going) {
-                WidgetDestroyed (this, args);
+                if (AnimationState != AnimationState.Going) {
+                    WidgetDestroyed (this, args);
+                }
+
             }
-
-            ((IDisposable)cr).Dispose ();
         }
 
 #region Overrides
