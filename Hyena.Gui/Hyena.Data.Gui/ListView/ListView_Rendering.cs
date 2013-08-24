@@ -225,7 +225,7 @@ namespace Hyena.Data.Gui
                 Cairo.Color stroke_color = CairoExtensions.ColorShade (base_color, 0.0);
                 stroke_color.A = 0.3;
 
-                cr.Color = stroke_color;
+                cr.SetSourceColor (stroke_color);
                 cr.MoveTo (area.X + 0.5, area.Y + 1.0);
                 cr.LineTo (area.X + 0.5, area.Bottom);
                 cr.MoveTo (area.Right - 0.5, area.Y + 1.0);
@@ -407,7 +407,7 @@ namespace Hyena.Data.Gui
 
                 StyleContext.Save ();
                 StyleContext.AddClass ("entry");
-                cr.Color = CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetColor (StateFlags.Normal));
+                cr.SetSourceColor (CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetColor (StateFlags.Normal)));
                 StyleContext.Restore ();
 
                 cr.Stroke ();
@@ -470,7 +470,7 @@ namespace Hyena.Data.Gui
                 Cairo.Color fill_color = CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetBackgroundColor (StateFlags.Normal));
                 StyleContext.Restore ();
                 fill_color.A = 0.5;
-                cr.Color = fill_color;
+                cr.SetSourceColor (fill_color);
                 cr.Rectangle (area.X, area.Y, area.Width, area.Height);
                 cr.Fill ();
             }
@@ -507,7 +507,7 @@ namespace Hyena.Data.Gui
 
             cr.Rectangle (x, header_rendering_alloc.Bottom + 1, column.Width - 2,
                 list_rendering_alloc.Bottom - header_rendering_alloc.Bottom - 1);
-            cr.Color = fill_color;
+            cr.SetSourceColor (fill_color);
             cr.Fill ();
 
             cr.MoveTo (x - 0.5, header_rendering_alloc.Bottom + 0.5);
@@ -515,7 +515,7 @@ namespace Hyena.Data.Gui
             cr.LineTo (x + column.Width - 1.5, list_rendering_alloc.Bottom + 0.5);
             cr.LineTo (x + column.Width - 1.5, header_rendering_alloc.Bottom + 0.5);
 
-            cr.Color = stroke_color;
+            cr.SetSourceColor (stroke_color);
             cr.LineWidth = 1.0;
             cr.Stroke ();
         }

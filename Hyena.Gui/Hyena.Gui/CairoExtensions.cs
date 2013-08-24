@@ -67,7 +67,8 @@ namespace Hyena.Gui
 
         public static Surface CreateSurfaceForPixbuf (Cairo.Context cr, Gdk.Pixbuf pixbuf)
         {
-            Surface surface = cr.Target.CreateSimilar (cr.Target.Content, pixbuf.Width, pixbuf.Height);
+            var target = cr.GetTarget ();
+            Surface surface = target.CreateSimilar (target.Content, pixbuf.Width, pixbuf.Height);
             Cairo.Context surface_cr = new Context (surface);
             Gdk.CairoHelper.SetSourcePixbuf (surface_cr, pixbuf, 0.0, 0.0);
             surface_cr.Paint ();
@@ -324,7 +325,7 @@ namespace Hyena.Gui
 
         public static void DisposeContext (Cairo.Context cr)
         {
-            ((IDisposable)cr.Target).Dispose ();
+            ((IDisposable)cr.GetTarget ()).Dispose ();
             ((IDisposable)cr).Dispose ();
         }
 

@@ -80,17 +80,17 @@ namespace Hyena.Gui.Theming
                 Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));
             Color color_b = CairoExtensions.ColorShade (color_a, 1.4);
 
-            RadialGradient fill = new RadialGradient (Context.X, Context.Y, 0,
-                Context.X, Context.Y, 2.0 * Context.Radius);
-            fill.AddColorStop (0, color_a);
-            fill.AddColorStop (1, color_b);
-            Context.Cairo.Pattern = fill;
+            using (var fill = new RadialGradient (Context.X, Context.Y, 0, Context.X, Context.Y,
+                                                  2.0 * Context.Radius)) {
+                fill.AddColorStop (0, color_a);
+                fill.AddColorStop (1, color_b);
+                Context.Cairo.SetSource (fill);
 
-            Context.Cairo.FillPreserve ();
-            fill.Destroy ();
+                Context.Cairo.FillPreserve ();
+            }
 
             // Stroke the pie
-            Context.Cairo.Color = CairoExtensions.ColorShade (color_a, 0.8);
+            Context.Cairo.SetSourceColor (CairoExtensions.ColorShade (color_a, 0.8));
             Context.Cairo.LineWidth = Context.LineWidth;
             Context.Cairo.Stroke ();
         }
@@ -109,9 +109,9 @@ namespace Hyena.Gui.Theming
         {
             color.A = Context.FillAlpha;
             if (pattern != null) {
-                cr.Pattern = pattern;
+                cr.SetSource (pattern);
             } else {
-                cr.Color = color;
+                cr.SetSourceColor (color);
             }
             CairoExtensions.RoundedRectangle (cr, alloc.X, alloc.Y, alloc.Width, alloc.Height, Context.Radius, CairoCorners.All);
             cr.Fill ();
@@ -150,10 +150,10 @@ namespace Hyena.Gui.Theming
             // FIXME Windows; shading the color by .8 makes it blend into the bg
             if (Widget.HasFocus && !Hyena.PlatformDetection.IsWindows) {
                 cr.LineWidth = BorderWidth * 1.5;
-                cr.Color = CairoExtensions.ColorShade (border_color, 0.8);
+                cr.SetSourceColor (CairoExtensions.ColorShade (border_color, 0.8));
             } else {
                 cr.LineWidth = BorderWidth;
-                cr.Color = border_color;
+                cr.SetSourceColor (border_color);
             }
 
             double offset = (double)cr.LineWidth / 2.0;
@@ -174,14 +174,14 @@ namespace Hyena.Gui.Theming
             Cairo.Color light_color = CairoExtensions.ColorShade (color, 1.6);
             Cairo.Color dark_color = CairoExtensions.ColorShade (color, 1.3);
 
-            LinearGradient grad = new LinearGradient (alloc.X, alloc.Y, alloc.X, alloc.Bottom - 1);
-            grad.AddColorStop (0, light_color);
-            grad.AddColorStop (1, dark_color);
+            using (var grad = new LinearGradient (alloc.X, alloc.Y, alloc.X, alloc.Bottom - 1)) {
+                grad.AddColorStop (0, light_color);
+                grad.AddColorStop (1, dark_color);
 
-            cr.Pattern = grad;
-            cr.Rectangle (alloc.X + 1.5, alloc.Y + 1.5, alloc.Width - 3, alloc.Height - 2);
-            cr.Fill ();
-            grad.Destroy ();
+                cr.SetSource (grad);
+                cr.Rectangle (alloc.X + 1.5, alloc.Y + 1.5, alloc.Width - 3, alloc.Height - 2);
+                cr.Fill ();
+            }
         }
 
         public override void DrawHeaderBackground (Cairo.Context cr, Gdk.Rectangle alloc)
@@ -193,19 +193,19 @@ namespace Hyena.Gui.Theming
 
             CairoCorners corners = CairoCorners.TopLeft | CairoCorners.TopRight;
 
-            LinearGradient grad = new LinearGradient (alloc.X, alloc.Y, alloc.X, alloc.Bottom);
-            grad.AddColorStop (0, light_color);
-            grad.AddColorStop (0.75, dark_color);
-            grad.AddColorStop (0, light_color);
+            using (var grad = new LinearGradient (alloc.X, alloc.Y, alloc.X, alloc.Bottom)) {
+                grad.AddColorStop (0, light_color);
+                grad.AddColorStop (0.75, dark_color);
+                grad.AddColorStop (0, light_color);
 
-            cr.Pattern = grad;
-            CairoExtensions.RoundedRectangle (cr, alloc.X, alloc.Y, alloc.Width, alloc.Height, Context.Radius, corners);
-            cr.Fill ();
+                cr.SetSource (grad);
+                CairoExtensions.RoundedRectangle (cr, alloc.X, alloc.Y, alloc.Width, alloc.Height, Context.Radius, corners);
+                cr.Fill ();
 
-            cr.Color = border_color;
-            cr.Rectangle (alloc.X, alloc.Bottom, alloc.Width, BorderWidth);
-            cr.Fill ();
-            grad.Destroy ();
+                cr.SetSourceColor (border_color);
+                cr.Rectangle (alloc.X, alloc.Bottom, alloc.Width, BorderWidth);
+                cr.Fill ();
+            }
         }
 
         public override void DrawColumnHeaderFocus (Cairo.Context cr, Gdk.Rectangle alloc)
@@ -221,7 +221,7 @@ namespace Hyena.Gui.Theming
                     Widget.StyleContext.GetBackgroundColor (StateFlags.Selected)), 0.8);
 
             stroke_color.A = 0.1;
-            cr.Color = stroke_color;
+            cr.SetSourceColor (stroke_color);
 
             CairoExtensions.RoundedRectangle (cr,
                 alloc.X + margin + line_width + right_offset,
@@ -234,7 +234,7 @@ namespace Hyena.Gui.Theming
 
             stroke_color.A = 1.0;
             cr.LineWidth = line_width;
-            cr.Color = stroke_color;
+            cr.SetSourceColor (stroke_color);
             CairoExtensions.RoundedRectangle (cr,
                 alloc.X + margin + line_width + right_offset,
                 alloc.Y + margin + line_width + top_offset,
@@ -257,12 +257,12 @@ namespace Hyena.Gui.Theming
             cr.LineWidth = 1;
             cr.Antialias = Cairo.Antialias.None;
 
-            cr.Color = dark_color;
+            cr.SetSourceColor (dark_color);
             cr.MoveTo (x, y_1);
             cr.LineTo (x, y_2);
             cr.Stroke ();
 
-            cr.Color = light_color;
+            cr.SetSourceColor (light_color);
             cr.MoveTo (x + 1, y_1);
             cr.LineTo (x + 1, y_2);
             cr.Stroke ();
@@ -273,7 +273,7 @@ namespace Hyena.Gui.Theming
         public override void DrawListBackground (Context cr, Gdk.Rectangle alloc, Color color)
         {
             color.A = Context.FillAlpha;
-            cr.Color = color;
+            cr.SetSourceColor (color);
             cr.Rectangle (alloc.X, alloc.Y, alloc.Width, alloc.Height);
             cr.Fill ();
         }
@@ -282,7 +282,7 @@ namespace Hyena.Gui.Theming
                                             Cairo.Color color, CairoCorners corners)
         {
             cr.LineWidth = 1.25;
-            cr.Color = color;
+            cr.SetSourceColor (color);
             CairoExtensions.RoundedRectangle (cr, x + cr.LineWidth/2.0, y + cr.LineWidth/2.0,
                 width - cr.LineWidth, height - cr.LineWidth, Context.Radius, corners, true);
             cr.Stroke ();
@@ -306,7 +306,7 @@ namespace Hyena.Gui.Theming
 
             if (filled) {
                 if (flat_fill) {
-                    cr.Color = selection_color;
+                    cr.SetSourceColor (selection_color);
                 } else {
                     Cairo.Color selection_fill_light = CairoExtensions.ColorShade (selection_color, 1.12);
                     Cairo.Color selection_fill_dark = selection_color;
@@ -319,20 +319,20 @@ namespace Hyena.Gui.Theming
                     grad.AddColorStop (0.4, selection_fill_dark);
                     grad.AddColorStop (1, selection_fill_light);
 
-                    cr.Pattern = grad;
+                    cr.SetSource (grad);
                 }
 
                 CairoExtensions.RoundedRectangle (cr, x, y, width, height, Context.Radius, corners, true);
                 cr.Fill ();
 
                 if (grad != null) {
-                    grad.Destroy ();
+                    grad.Dispose ();
                 }
             }
 
             if (filled && stroked) {
                 cr.LineWidth = 1.0;
-                cr.Color = selection_highlight;
+                cr.SetSourceColor (selection_highlight);
                 CairoExtensions.RoundedRectangle (cr, x + 1.5, y + 1.5, width - 3, height - 3,
                     Context.Radius - 1, corners, true);
                 cr.Stroke ();
@@ -340,7 +340,7 @@ namespace Hyena.Gui.Theming
 
             if (stroked) {
                 cr.LineWidth = 1.0;
-                cr.Color = selection_stroke;
+                cr.SetSourceColor (selection_stroke);
                 CairoExtensions.RoundedRectangle (cr, x + 0.5, y + 0.5, width - 1, height - 1,
                     Context.Radius, corners, true);
                 cr.Stroke ();
@@ -349,7 +349,7 @@ namespace Hyena.Gui.Theming
 
         public override void DrawRowRule (Cairo.Context cr, int x, int y, int width, int height)
         {
-            cr.Color = new Cairo.Color (rule_color.R, rule_color.G, rule_color.B, Context.FillAlpha);
+            cr.SetSourceColor (new Cairo.Color (rule_color.R, rule_color.G, rule_color.B, Context.FillAlpha));
             cr.Rectangle (x, y, width, height);
             cr.Fill ();
         }

@@ -95,17 +95,17 @@ namespace Hyena.Widgets
 
             Gdk.RGBA rgba = StyleContext.GetBackgroundColor (StateFlags.Selected);
             Cairo.Color color = CairoExtensions.GdkRGBAToCairoColor (rgba);
-            Cairo.RadialGradient fill = new Cairo.RadialGradient (x, y, 0, x, y, r);
-            color.A = alpha;
-            fill.AddColorStop (0, color);
-            fill.AddColorStop (0.5, color);
-            color.A = 0;
-            fill.AddColorStop (1, color);
+            using (var fill = new Cairo.RadialGradient (x, y, 0, x, y, r)) {
+                color.A = alpha;
+                fill.AddColorStop (0, color);
+                fill.AddColorStop (0.5, color);
+                color.A = 0;
+                fill.AddColorStop (1, color);
 
-            cr.Arc (x, y, r, 0, 2 * Math.PI);
-            cr.Pattern = fill;
-            cr.Fill ();
-            fill.Destroy ();
+                cr.Arc (x, y, r, 0, 2 * Math.PI);
+                cr.SetSource (fill);
+                cr.Fill ();
+            }
 
             return base.OnDrawn (cr);
         }

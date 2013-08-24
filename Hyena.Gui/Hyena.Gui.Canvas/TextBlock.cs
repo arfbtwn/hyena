@@ -214,13 +214,13 @@ namespace Hyena.Gui.Canvas
             TooltipMarkup = layout.IsEllipsized ? last_formatted_text : null;
 
             if (fade) {
-                LinearGradient mask = new LinearGradient (RenderSize.Width - 20, 0, RenderSize.Width, 0);
-                mask.AddColorStop (0, new Color (0, 0, 0, 1));
-                mask.AddColorStop (1, new Color (0, 0, 0, 0));
+                using (var mask = new LinearGradient (RenderSize.Width - 20, 0, RenderSize.Width, 0)) {
+                    mask.AddColorStop (0, new Color (0, 0, 0, 1));
+                    mask.AddColorStop (1, new Color (0, 0, 0, 0));
 
-                cr.PopGroupToSource ();
-                cr.Mask (mask);
-                mask.Destroy ();
+                    cr.PopGroupToSource ();
+                    cr.Mask (mask);
+                }
             }
 
             cr.ResetClip ();

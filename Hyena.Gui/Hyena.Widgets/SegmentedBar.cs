@@ -332,64 +332,65 @@ namespace Hyena.Widgets
                 bar_height + bar_label_spacing + layout_height));
             cr.Clip ();
 
-            Pattern bar = RenderBar (Allocation.Width - 2 * h_padding, bar_height);
+            using (var bar = RenderBar (Allocation.Width - 2 * h_padding, bar_height)) {
 
-            cr.Save ();
-            cr.Source = bar;
-            cr.Paint ();
-            cr.Restore ();
-
-            if (reflect) {
                 cr.Save ();
-
-                cr.Rectangle (0, bar_height, Allocation.Width - h_padding, bar_height);
-                cr.Clip ();
-
-                Matrix matrix = new Matrix ();
-                matrix.InitScale (1, -1);
-                matrix.Translate (0, -(2 * bar_height) + 1);
-                cr.Transform (matrix);
-
-                cr.Pattern = bar;
-
-                LinearGradient mask = new LinearGradient (0, 0, 0, bar_height);
-
-                mask.AddColorStop (0.25, new Color (0, 0, 0, 0));
-                mask.AddColorStop (0.5, new Color (0, 0, 0, 0.125));
-                mask.AddColorStop (0.75, new Color (0, 0, 0, 0.4));
-                mask.AddColorStop (1.0, new Color (0, 0, 0, 0.7));
-
-                cr.Mask (mask);
-                mask.Destroy ();
-
+                cr.SetSource (bar);
+                cr.Paint ();
                 cr.Restore ();
 
-                CairoExtensions.PopGroupToSource (cr);
-                cr.Paint ();
-            }
+                if (reflect) {
+                    cr.Save ();
 
-            if (show_labels) {
-                cr.Translate ((reflect ? 0 : -h_padding) + (Allocation.Width - layout_width) / 2,
-                     bar_height + bar_label_spacing);
-                RenderLabels (cr);
-            }
+                    cr.Rectangle (0, bar_height, Allocation.Width - h_padding, bar_height);
+                    cr.Clip ();
 
-            bar.Destroy ();
+                    Matrix matrix = new Matrix ();
+                    matrix.InitScale (1, -1);
+                    matrix.Translate (0, -(2 * bar_height) + 1);
+                    cr.Transform (matrix);
+
+                    cr.SetSource (bar);
+
+                    using (var mask = new LinearGradient (0, 0, 0, bar_height)) {
+
+                        mask.AddColorStop (0.25, new Color (0, 0, 0, 0));
+                        mask.AddColorStop (0.5, new Color (0, 0, 0, 0.125));
+                        mask.AddColorStop (0.75, new Color (0, 0, 0, 0.4));
+                        mask.AddColorStop (1.0, new Color (0, 0, 0, 0.7));
+
+                        cr.Mask (mask);
+                    }
+
+                    cr.Restore ();
+
+                    CairoExtensions.PopGroupToSource (cr);
+                    cr.Paint ();
+                }
+
+                if (show_labels) {
+                    cr.Translate ((reflect ? 0 : -h_padding) + (Allocation.Width - layout_width) / 2,
+                              bar_height + bar_label_spacing);
+                    RenderLabels (cr);
+                }
+
+            }
 
             return true;
         }
 
         private Pattern RenderBar (int w, int h)
         {
-            ImageSurface s = new ImageSurface (Format.Argb32, w, h);
-            Context cr = new Context (s);
-            RenderBar (cr, w, h, h / 2);
+            Pattern pattern;
+            using (var s = new ImageSurface (Format.Argb32, w, h)) {
+                using (var cr = new Context (s)) {
+                    RenderBar (cr, w, h, h / 2);
 // TODO Implement the new ctor - see http://bugzilla.gnome.org/show_bug.cgi?id=561394
 #pragma warning disable 0618
-            Pattern pattern = new Pattern (s);
+                    pattern = new Pattern (s);
 #pragma warning restore 0618
-            s.Destroy ();
-            ((IDisposable)cr).Dispose ();
+                }
+            }
             return pattern;
         }
 
@@ -401,63 +402,62 @@ namespace Hyena.Widgets
 
         private void RenderBarSegments (Context cr, int w, int h, int r)
         {
-            LinearGradient grad = new LinearGradient (0, 0, w, 0);
-            double last = 0.0;
+            using (var grad = new LinearGradient (0, 0, w, 0)) {
+                double last = 0.0;
 
-            foreach (Segment segment in segments) {
-                if (segment.Percent > 0) {
-                    grad.AddColorStop (last, segment.Color);
-                    grad.AddColorStop (last += segment.Percent, segment.Color);
+                foreach (Segment segment in segments) {
+                    if (segment.Percent > 0) {
+                        grad.AddColorStop (last, segment.Color);
+                        grad.AddColorStop (last += segment.Percent, segment.Color);
+                    }
                 }
+
+                CairoExtensions.RoundedRectangle (cr, 0, 0, w, h, r);
+                cr.SetSource (grad);
+                cr.FillPreserve ();
             }
 
-            CairoExtensions.RoundedRectangle (cr, 0, 0, w, h, r);
-            cr.Pattern = grad;
-            cr.FillPreserve ();
-            cr.Pattern.Destroy ();
+            using (var grad = new LinearGradient (0, 0, 0, h)) {
+                grad.AddColorStop (0.0, new Color (1, 1, 1, 0.125));
+                grad.AddColorStop (0.35, new Color (1, 1, 1, 0.255));
+                grad.AddColorStop (1, new Color (0, 0, 0, 0.4));
 
-            grad = new LinearGradient (0, 0, 0, h);
-            grad.AddColorStop (0.0, new Color (1, 1, 1, 0.125));
-            grad.AddColorStop (0.35, new Color (1, 1, 1, 0.255));
-            grad.AddColorStop (1, new Color (0, 0, 0, 0.4));
-
-            cr.Pattern = grad;
-            cr.Fill ();
-            cr.Pattern.Destroy ();
+                cr.SetSource (grad);
+                cr.Fill ();
+            }
         }
 
         private void RenderBarStrokes (Context cr, int w, int h, int r)
         {
-            LinearGradient stroke = MakeSegmentGradient (h, CairoExtensions.RgbaToColor (0x00000040));
-            LinearGradient seg_sep_light = MakeSegmentGradient (h, CairoExtensions.RgbaToColor (0xffffff20));
-            LinearGradient seg_sep_dark = MakeSegmentGradient (h, CairoExtensions.RgbaToColor (0x00000020));
+            using (var stroke = MakeSegmentGradient (h, CairoExtensions.RgbaToColor (0x00000040))) {
+                using (var seg_sep_light = MakeSegmentGradient (h, CairoExtensions.RgbaToColor (0xffffff20))) {
+                    using (var seg_sep_dark = MakeSegmentGradient (h, CairoExtensions.RgbaToColor (0x00000020))) {
 
-            cr.LineWidth = 1;
+                        cr.LineWidth = 1;
 
-            double seg_w = 20;
-            double x = seg_w > r ? seg_w : r;
+                        double seg_w = 20;
+                        double x = seg_w > r ? seg_w : r;
 
-            while (x <= w - r) {
-                cr.MoveTo (x - 0.5, 1);
-                cr.LineTo (x - 0.5, h - 1);
-                cr.Pattern = seg_sep_light;
-                cr.Stroke ();
+                        while (x <= w - r) {
+                            cr.MoveTo (x - 0.5, 1);
+                            cr.LineTo (x - 0.5, h - 1);
+                            cr.SetSource (seg_sep_light);
+                            cr.Stroke ();
 
-                cr.MoveTo (x + 0.5, 1);
-                cr.LineTo (x + 0.5, h - 1);
-                cr.Pattern = seg_sep_dark;
-                cr.Stroke ();
+                            cr.MoveTo (x + 0.5, 1);
+                            cr.LineTo (x + 0.5, h - 1);
+                            cr.SetSource (seg_sep_dark);
+                            cr.Stroke ();
 
-                x += seg_w;
+                            x += seg_w;
+                        }
+
+                        CairoExtensions.RoundedRectangle (cr, 0.5, 0.5, w - 1, h - 1, r);
+                        cr.SetSource (stroke);
+                        cr.Stroke ();
+                    }
+                }
             }
-
-            CairoExtensions.RoundedRectangle (cr, 0.5, 0.5, w - 1, h - 1, r);
-            cr.Pattern = stroke;
-            cr.Stroke ();
-
-            stroke.Destroy ();
-            seg_sep_light.Destroy ();
-            seg_sep_dark.Destroy ();
         }
 
         private LinearGradient MakeSegmentGradient (int h, Color color)
@@ -490,12 +490,12 @@ namespace Hyena.Widgets
             foreach (Segment segment in segments) {
                 cr.LineWidth = 1;
                 cr.Rectangle (x + 0.5, 2 + 0.5, segment_box_size - 1, segment_box_size - 1);
-                LinearGradient grad = MakeSegmentGradient (segment_box_size, segment.Color, true);
-                cr.Pattern = grad;
-                cr.FillPreserve ();
-                cr.Color = box_stroke_color;
-                cr.Stroke ();
-                grad.Destroy ();
+                using (var grad = MakeSegmentGradient (segment_box_size, segment.Color, true)) {
+                    cr.SetSource (grad);
+                    cr.FillPreserve ();
+                    cr.SetSourceColor (box_stroke_color);
+                    cr.Stroke ();
+                }
 
                 x += segment_box_size + segment_box_spacing;
 
@@ -506,7 +506,7 @@ namespace Hyena.Widgets
 
                 cr.MoveTo (x, 0);
                 text_color.A = 0.9;
-                cr.Color = text_color;
+                cr.SetSourceColor (text_color);
                 PangoCairoHelper.ShowLayout (cr, layout);
                 cr.Fill ();
 
@@ -515,7 +515,7 @@ namespace Hyena.Widgets
 
                 cr.MoveTo (x, lh);
                 text_color.A = 0.75;
-                cr.Color = text_color;
+                cr.SetSourceColor (text_color);
                 PangoCairoHelper.ShowLayout (cr, layout);
                 cr.Fill ();
 

@@ -111,7 +111,7 @@ namespace Hyena.Data.Gui
             context.Context.MoveTo (Padding.Left, ((int)cellHeight - text_height) / 2);
             var color = CairoExtensions.GdkRGBAToCairoColor (context.Theme.Widget.StyleContext.GetColor (context.State));
             color.A = Alpha ?? (context.Opaque ? 1.0 : 0.5);
-            context.Context.Color = color;
+            context.Context.SetSourceColor (color);
 
             PangoCairoHelper.ShowLayout (context.Context, context.Layout);
             //context.Context.ResetClip ();

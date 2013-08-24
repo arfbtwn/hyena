@@ -165,19 +165,19 @@ namespace Hyena.Gui.Canvas
             fill_color.A = 1.0;
             light_fill_color.A = 1.0;
 
-            LinearGradient fill = new LinearGradient (0, 0, 0, RenderSize.Height);
-            fill.AddColorStop (0, light_fill_color);
-            fill.AddColorStop (0.5, fill_color);
-            fill.AddColorStop (1, light_fill_color);
+            using (var fill = new LinearGradient (0, 0, 0, RenderSize.Height)) {
+                fill.AddColorStop (0, light_fill_color);
+                fill.AddColorStop (0.5, fill_color);
+                fill.AddColorStop (1, light_fill_color);
 
-            cr.Rectangle (0, 0, bar_w, RenderSize.Height);
-            cr.Pattern = fill;
-            cr.Fill ();
+                cr.Rectangle (0, 0, bar_w, RenderSize.Height);
+                cr.SetSource (fill);
+                cr.Fill ();
 
-            cr.Color = fill_color;
-            cr.Arc (throbber_x, throbber_y, throbber_r, 0, Math.PI * 2);
-            cr.Fill ();
-            fill.Destroy ();
+                cr.SetSourceColor (fill_color);
+                cr.Arc (throbber_x, throbber_y, throbber_r, 0, Math.PI * 2);
+                cr.Fill ();
+            }
         }
 
         public override Size Measure (Size available)
