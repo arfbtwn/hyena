@@ -177,6 +177,7 @@ namespace Hyena.Gui.Canvas
             cr.Color = fill_color;
             cr.Arc (throbber_x, throbber_y, throbber_r, 0, Math.PI * 2);
             cr.Fill ();
+            fill.Destroy ();
         }
 
         public override Size Measure (Size available)
