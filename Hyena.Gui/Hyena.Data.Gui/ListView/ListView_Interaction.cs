@@ -82,6 +82,9 @@ namespace Hyena.Data.Gui
                 if (value == vadjustment) {
                     return;
                 }
+                if (vadjustment != null) {
+                    vadjustment.ValueChanged -= OnVadjustmentChanged;
+                }
                 vadjustment = value;
                 vadjustment.ValueChanged += OnVadjustmentChanged;
                 UpdateAdjustments ();
@@ -94,6 +97,9 @@ namespace Hyena.Data.Gui
             set {
                 if (value == hadjustment) {
                     return;
+                }
+                if (hadjustment != null) {
+                    hadjustment.ValueChanged -= OnHadjustmentChanged;
                 }
                 hadjustment = value;
                 hadjustment.ValueChanged += OnHadjustmentChanged;
