@@ -29,6 +29,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using Gtk;
 
 namespace Hyena.Gui
@@ -68,7 +69,7 @@ namespace Hyena.Gui
             return true;
         }
 
-        public static FileFilter GetFileFilter (string name, System.Collections.Generic.IEnumerable<string> extensions)
+        public static FileFilter GetFileFilter (string name, IEnumerable<string> extensions)
         {
             FileFilter filter = new FileFilter ();
             filter.Name = name;
@@ -79,7 +80,7 @@ namespace Hyena.Gui
             return filter;
         }
 
-        public static void SetChooserShortcuts (Gtk.FileChooserDialog chooser, params string [] shortcuts)
+        public static void SetChooserShortcuts (FileChooserDialog chooser, params string [] shortcuts)
         {
             foreach (string shortcut in shortcuts) {
                 if (shortcut != null) {
@@ -144,7 +145,8 @@ namespace Hyena.Gui
             }
         }
 
-        internal static string Dump (this Gtk.Adjustment alig) {
+        internal static string Dump (this Adjustment alig)
+        {
             if (alig == null) {
                 return "<null>";
             }
@@ -161,13 +163,13 @@ namespace Hyena.Gui
         [Obsolete ("Use Gtk.Global.ShowUri() from gtk# 3.x")]
         public static bool ShowUri (Gdk.Screen screen, string uri)
         {
-            return ShowUri (screen, uri, Gtk.Global.CurrentEventTime);
+            return ShowUri (screen, uri, Global.CurrentEventTime);
         }
 
         [Obsolete ("Use Gtk.Global.ShowUri() from gtk# 3.x")]
         public static bool ShowUri (Gdk.Screen screen, string uri, uint timestamp)
         {
-            return Gtk.Global.ShowUri (screen, uri, timestamp);
+            return Global.ShowUri (screen, uri, timestamp);
         }
     }
 }
