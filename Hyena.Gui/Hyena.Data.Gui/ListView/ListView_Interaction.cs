@@ -1023,30 +1023,32 @@ namespace Hyena.Data.Gui
                 }
             }
 
-            if (vadjustment != null && model != null) {
-                // FIXME: hard-coded grid logic
-                if (ViewLayout != null) {
-                    vadjustment.Upper = ViewLayout.VirtualSize.Height;
-                    vadjustment.StepIncrement = ViewLayout.ChildSize.Height;
-                } else {
-                    vadjustment.Upper = ChildSize.Height * model.Count;
-                    vadjustment.StepIncrement = ChildSize.Height;
-                }
+            if (vadjustment != null) {
 
-                if (vadjustment.Value + vadjustment.PageSize > vadjustment.Upper) {
-                    vadjustment.Value = Math.Max (0, vadjustment.Upper - vadjustment.PageSize);
+                if (model != null) {
+                    // FIXME: hard-coded grid logic
+                    if (ViewLayout != null) {
+                        vadjustment.Upper = ViewLayout.VirtualSize.Height;
+                        vadjustment.StepIncrement = ViewLayout.ChildSize.Height;
+                    } else {
+                        vadjustment.Upper = ChildSize.Height * model.Count;
+                        vadjustment.StepIncrement = ChildSize.Height;
+                    }
+
+                    if (vadjustment.Value + vadjustment.PageSize > vadjustment.Upper) {
+                        vadjustment.Value = Math.Max (0, vadjustment.Upper - vadjustment.PageSize);
+                    }
+                    if (vadjustment.Upper > 0 && vadjustment.Upper < vadjustment.PageSize) {
+                        vadjustment.Upper = vadjustment.PageSize;
+                    }
+                } else {
+                    vadjustment.Upper = 0;
+                    vadjustment.Lower = 0;
+                    vadjustment.PageSize = 0;
+                    vadjustment.PageIncrement = 0;
+                    vadjustment.StepIncrement = 0;
+                    vadjustment.Value = 0;
                 }
-                if (vadjustment.Upper > 0 && vadjustment.Upper < vadjustment.PageSize) {
-                    vadjustment.Upper = vadjustment.PageSize;
-                }
-            } else if (vadjustment != null) {
-                // model is null
-                vadjustment.Upper = 0;
-                vadjustment.Lower = 0;
-                vadjustment.PageSize = 0;
-                vadjustment.PageIncrement = 0;
-                vadjustment.StepIncrement = 0;
-                vadjustment.Value = 0;
             }
 
             if (hadjustment != null) {
