@@ -1025,7 +1025,7 @@ namespace Hyena.Data.Gui
 
             if (vadjustment != null) {
 
-                if (model != null) {
+                if (model != null && model.Count > 0) {
                     // FIXME: hard-coded grid logic
                     if (ViewLayout != null) {
                         vadjustment.Upper = ViewLayout.VirtualSize.Height;
