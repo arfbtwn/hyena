@@ -82,34 +82,32 @@ namespace Hyena.Widgets
             pulsator.Pulse += delegate { QueueDraw (); };
         }
 
-        protected override bool OnExposeEvent (Gdk.EventExpose evnt)
+        protected override bool OnDrawn (Cairo.Context cr)
         {
             if (!pulsator.IsPulsing) {
-                return base.OnExposeEvent (evnt);
+                return base.OnDrawn (cr);
             }
 
-            Cairo.Context cr = Gdk.CairoHelper.Create (GdkWindow);
-
-            double x = Allocation.X + Allocation.Width / 2;
-            double y = Allocation.Y + Allocation.Height / 2;
+            double x = Allocation.Width / 2;
+            double y = Allocation.Height / 2;
             double r = Math.Min (Allocation.Width, Allocation.Height) / 2;
             double alpha = Choreographer.Compose (pulsator.Percent, Easing.Sine);
 
-            Cairo.Color color = CairoExtensions.GdkColorToCairoColor (Style.Background (StateType.Selected));
-            Cairo.RadialGradient fill = new Cairo.RadialGradient (x, y, 0, x, y, r);
-            color.A = alpha;
-            fill.AddColorStop (0, color);
-            fill.AddColorStop (0.5, color);
-            color.A = 0;
-            fill.AddColorStop (1, color);
+            Gdk.RGBA rgba = StyleContext.GetBackgroundColor (StateFlags.Selected);
+            Cairo.Color color = CairoExtensions.GdkRGBAToCairoColor (rgba);
+            using (var fill = new Cairo.RadialGradient (x, y, 0, x, y, r)) {
+                color.A = alpha;
+                fill.AddColorStop (0, color);
+                fill.AddColorStop (0.5, color);
+                color.A = 0;
+                fill.AddColorStop (1, color);
 
-            cr.Arc (x, y, r, 0, 2 * Math.PI);
-            cr.Pattern = fill;
-            cr.Fill ();
-            fill.Destroy ();
+                cr.Arc (x, y, r, 0, 2 * Math.PI);
+                cr.SetSource (fill);
+                cr.Fill ();
+            }
 
-            CairoExtensions.DisposeContext (cr);
-            return base.OnExposeEvent (evnt);
+            return base.OnDrawn (cr);
         }
 
         public void StartPulsing ()

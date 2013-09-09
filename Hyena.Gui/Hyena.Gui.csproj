@@ -129,7 +129,6 @@
     <Compile Include="Hyena.Widgets\MessageBar.cs" />
     <Compile Include="Hyena.Widgets\AnimatedImage.cs" />
     <Compile Include="Hyena.Gui.Theming\Theme.cs" />
-    <Compile Include="Hyena.Gui.Theming\GtkColors.cs" />
     <Compile Include="Hyena.Gui.Theming\ThemeContext.cs" />
     <Compile Include="Hyena.Gui.Theming\ThemeEngine.cs" />
     <Compile Include="Hyena.Gui.Theming\GtkTheme.cs" />
@@ -148,7 +147,6 @@
     <Compile Include="Hyena.Widgets\SmoothScrolledWindow.cs" />
     <Compile Include="Hyena.Widgets\MenuButton.cs" />
     <Compile Include="Hyena.Gui\CompositeUtils.cs" />
-    <Compile Include="Hyena.Gui\TooltipSetter.cs" />
     <Compile Include="Hyena.Widgets\WrapLabel.cs" />
     <Compile Include="Hyena.Query.Gui\QueryDebugger.cs" />
     <Compile Include="Hyena.Gui\TestModuleAttribute.cs" />
@@ -165,7 +163,6 @@
     <Compile Include="Hyena.Widgets\ComplexMenuItem.cs" />
     <Compile Include="Hyena.Gui\RatingRenderer.cs" />
     <Compile Include="Hyena.Data.Gui\ListView\ListViewBase.cs" />
-    <Compile Include="Hyena.Gui\GtkWorkarounds.cs" />
     <Compile Include="Hyena.Gui\Contrast.cs" />
     <Compile Include="Hyena.Widgets\ImageButton.cs" />
     <Compile Include="Hyena.Data.Gui\ITextCell.cs" />

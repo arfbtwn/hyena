@@ -50,6 +50,7 @@ namespace Hyena.Data.Gui
             QueryTooltip += OnQueryTooltip;
             DirectionChanged += (o, a) => SetDirection ();
             manager = new CanvasManager (this);
+            OnStyleUpdated ();
         }
 
         private void OnQueryTooltip (object o, Gtk.QueryTooltipArgs args)

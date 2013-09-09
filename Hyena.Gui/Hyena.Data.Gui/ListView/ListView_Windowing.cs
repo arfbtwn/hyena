@@ -53,10 +53,11 @@ namespace Hyena.Data.Gui
 
         protected override void OnRealized ()
         {
-            WidgetFlags |= WidgetFlags.Realized | WidgetFlags.NoWindow;
+            IsRealized = true;
+            HasWindow = false;
 
-            GdkWindow = Parent.GdkWindow;
-            cell_context.Drawable = GdkWindow;
+            Window = Parent.Window;
+            cell_context.Drawable = Window;
 
             WindowAttr attributes = new WindowAttr ();
             attributes.WindowType = Gdk.WindowType.Child;
@@ -64,7 +65,7 @@ namespace Hyena.Data.Gui
             attributes.Y = Allocation.Y;
             attributes.Width = Allocation.Width;
             attributes.Height = Allocation.Height;
-            attributes.Wclass = WindowClass.InputOnly;
+            attributes.Wclass = WindowWindowClass.InputOnly;
             attributes.EventMask = (int)(
                 EventMask.PointerMotionMask |
                 EventMask.KeyPressMask |
@@ -77,7 +78,7 @@ namespace Hyena.Data.Gui
             WindowAttributesType attributes_mask =
                 WindowAttributesType.X | WindowAttributesType.Y | WindowAttributesType.Wmclass;
 
-            event_window = new Gdk.Window (GdkWindow, attributes, attributes_mask);
+            event_window = new Gdk.Window (Window, attributes, attributes_mask);
             event_window.UserData = Handle;
 
             OnDragSourceSet ();
@@ -88,10 +89,10 @@ namespace Hyena.Data.Gui
 
         protected override void OnUnrealized ()
         {
-            WidgetFlags &= ~WidgetFlags.Realized;
+            IsRealized = false;
 
             event_window.UserData = IntPtr.Zero;
-            Hyena.Gui.GtkWorkarounds.WindowDestroy (event_window);
+            event_window.Destroy ();
             event_window = null;
 
             base.OnUnrealized ();
@@ -99,13 +100,13 @@ namespace Hyena.Data.Gui
 
         protected override void OnMapped ()
         {
-            WidgetFlags |= WidgetFlags.Mapped;
+            IsMapped = true;
             event_window.Show ();
         }
 
         protected override void OnUnmapped ()
         {
-            WidgetFlags &= ~WidgetFlags.Mapped;
+            IsMapped = false;
             event_window.Hide ();
         }
 
@@ -120,39 +121,58 @@ namespace Hyena.Data.Gui
                 return;
             }
 
-            header_rendering_alloc = allocation;
+            header_rendering_alloc = new Gdk.Rectangle (0, 0, allocation.Width, allocation.Height);
             header_rendering_alloc.Height = HeaderHeight;
 
             list_rendering_alloc.X = header_rendering_alloc.X + Theme.TotalBorderWidth;
             list_rendering_alloc.Y = header_rendering_alloc.Bottom + Theme.TotalBorderWidth;
-            list_rendering_alloc.Width = allocation.Width - Theme.TotalBorderWidth * 2;
-            list_rendering_alloc.Height = allocation.Height - (list_rendering_alloc.Y - allocation.Y) -
-                Theme.TotalBorderWidth;
+            list_rendering_alloc.Width = Math.Max (0,
+                allocation.Width - Theme.TotalBorderWidth * 2);
+            list_rendering_alloc.Height = Math.Max (0,
+                allocation.Height - (list_rendering_alloc.Y - allocation.Y) - Theme.TotalBorderWidth);
 
             header_interaction_alloc = header_rendering_alloc;
             header_interaction_alloc.X = list_rendering_alloc.X;
             header_interaction_alloc.Width = list_rendering_alloc.Width;
             header_interaction_alloc.Height += Theme.BorderWidth;
-            header_interaction_alloc.Offset (-allocation.X, -allocation.Y);
 
             list_interaction_alloc = list_rendering_alloc;
-            list_interaction_alloc.Offset (-allocation.X, -allocation.Y);
 
             header_width = header_interaction_alloc.Width;
         }
 
-        protected override void OnSizeRequested (ref Requisition requisition)
+        protected override void OnGetPreferredHeight (out int minimum_height, out int natural_height)
+        {
+            var requisition = SizeRequested ();
+            minimum_height = natural_height = requisition.Height;
+        }
+
+        protected override void OnGetPreferredWidth (out int minimum_width, out int natural_width)
+        {
+            var requisition = SizeRequested ();
+            minimum_width = natural_width = requisition.Width;
+        }
+
+        protected Requisition SizeRequested ()
         {
             // TODO give the minimum height of the header
             if (Theme == null) {
-                return;
+                return Requisition.Zero;
             }
+            var requisition = new Requisition ();
             requisition.Width = Theme.TotalBorderWidth * 2;
             requisition.Height = HeaderHeight + Theme.TotalBorderWidth * 2;
+            return requisition;
         }
 
         protected override void OnSizeAllocated (Rectangle allocation)
         {
+            if (allocation.X < 0 || allocation.Y < 0) {
+                Log.Error ("SizeAllocate call received from container with negative coordinate(s): " + allocation.ToString () + Environment.NewLine +
+                           "(Prevent adjustments from receiving bad values; i.e.: negative values, or upper values lower than page size/increment, or any positive Value when the upper value is zero, etc.)");
+                return;
+            }
+
             base.OnSizeAllocated (allocation);
 
             if (IsRealized) {

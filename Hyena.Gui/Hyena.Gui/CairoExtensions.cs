@@ -67,11 +67,12 @@ namespace Hyena.Gui
 
         public static Surface CreateSurfaceForPixbuf (Cairo.Context cr, Gdk.Pixbuf pixbuf)
         {
-            Surface surface = cr.Target.CreateSimilar (cr.Target.Content, pixbuf.Width, pixbuf.Height);
-            Cairo.Context surface_cr = new Context (surface);
-            Gdk.CairoHelper.SetSourcePixbuf (surface_cr, pixbuf, 0, 0);
-            surface_cr.Paint ();
-            ((IDisposable)surface_cr).Dispose ();
+            var target = cr.GetTarget ();
+            Surface surface = target.CreateSimilar (target.Content, pixbuf.Width, pixbuf.Height);
+            using (var surface_cr = new Context (surface)) {
+                Gdk.CairoHelper.SetSourcePixbuf (surface_cr, pixbuf, 0.0, 0.0);
+                surface_cr.Paint ();
+            }
             return surface;
         }
 
@@ -95,6 +96,11 @@ namespace Hyena.Gui
                 (double)(color.Green >> 8) / 255.0,
                 (double)(color.Blue >> 8) / 255.0,
                 alpha);
+        }
+
+        public static Cairo.Color GdkRGBAToCairoColor (Gdk.RGBA rgba)
+        {
+            return new Cairo.Color (rgba.Red, rgba.Green, rgba.Blue, rgba.Alpha);
         }
 
         public static Cairo.Color RgbToColor (uint rgbColor)
@@ -319,7 +325,7 @@ namespace Hyena.Gui
 
         public static void DisposeContext (Cairo.Context cr)
         {
-            ((IDisposable)cr.Target).Dispose ();
+            ((IDisposable)cr.GetTarget ()).Dispose ();
             ((IDisposable)cr).Dispose ();
         }
 

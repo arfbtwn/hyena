@@ -1,7 +1,7 @@
 ASSEMBLY = Hyena.Gui
 ASSEMBLY_BUILD_FLAGS = -unsafe
 TARGET = library
-LINK = -r:ICSharpCode.SharpZipLib -r:Mono.Posix -r:System -r:System.Core -r:Mono.Cairo \
+LINK = -r:ICSharpCode.SharpZipLib -r:Mono.Posix -r:System -r:System.Core \
 	   $(GTKSHARP_LIBS) $(GLIBSHARP_LIBS) \
 	   -r:$(DIR_BIN)/Hyena.dll
 SOURCES =  \
@@ -75,7 +75,6 @@ SOURCES =  \
 	Hyena.Gui.Theatrics/SingleActorStage.cs \
 	Hyena.Gui.Theatrics/Stage.cs \
 	Hyena.Gui.Theatrics/Tests/ChoreographerTests.cs \
-	Hyena.Gui.Theming/GtkColors.cs \
 	Hyena.Gui.Theming/GtkTheme.cs \
 	Hyena.Gui.Theming/Theme.cs \
 	Hyena.Gui.Theming/ThemeContext.cs \
@@ -93,7 +92,6 @@ SOURCES =  \
 	Hyena.Gui/EditableInsertAction.cs \
 	Hyena.Gui/EditableUndoAdapter.cs \
 	Hyena.Gui/GtkUtilities.cs \
-	Hyena.Gui/GtkWorkarounds.cs \
 	Hyena.Gui/HyenaActionGroup.cs \
 	Hyena.Gui/PangoCairoHelper.cs \
 	Hyena.Gui/PangoExtensions.cs \
@@ -102,7 +100,6 @@ SOURCES =  \
 	Hyena.Gui/ShadingTestWindow.cs \
 	Hyena.Gui/TestModuleAttribute.cs \
 	Hyena.Gui/TestModuleRunner.cs \
-	Hyena.Gui/TooltipSetter.cs \
 	Hyena.Query.Gui/DateQueryValueEntry.cs \
 	Hyena.Query.Gui/FileSizeQueryValueEntry.cs \
 	Hyena.Query.Gui/IntegerQueryValueEntry.cs \

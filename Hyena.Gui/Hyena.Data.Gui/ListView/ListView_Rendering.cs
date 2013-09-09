@@ -35,7 +35,6 @@ using Gdk;
 using Hyena.Gui;
 using Hyena.Gui.Theming;
 using Hyena.Gui.Canvas;
-using GtkColorClass=Hyena.Gui.Theming.GtkColorClass;
 
 namespace Hyena.Data.Gui
 {
@@ -43,14 +42,13 @@ namespace Hyena.Data.Gui
 
     public partial class ListView<T> : ListViewBase
     {
-        private Cairo.Context cairo_context;
         private CellContext cell_context;
         private Pango.Layout pango_layout;
 
         public override Pango.Layout PangoLayout {
             get {
-                if (pango_layout == null && GdkWindow != null && IsRealized) {
-                    using (var cr = Gdk.CairoHelper.Create (GdkWindow)) {
+                if (pango_layout == null && Window != null && IsRealized) {
+                    using (var cr = Gdk.CairoHelper.Create (Window)) {
                         pango_layout = CairoExtensions.CreateLayout (this, cr);
                         cell_context.FontDescription = pango_layout.FontDescription;
                         cell_context.Layout = pango_layout;
@@ -61,7 +59,7 @@ namespace Hyena.Data.Gui
         }
 
         public override Pango.FontDescription FontDescription {
-            get { return cell_context.FontDescription; }
+            get { return cell_context  != null ? cell_context.FontDescription : null; }
         }
 
         private List<int> selected_rows = new List<int> ();
@@ -78,19 +76,9 @@ namespace Hyena.Data.Gui
             set { do_not_render_null_model = value; }
         }
 
-        private bool changing_style = false;
-
-        protected override void OnStyleSet (Style old_style)
+        protected override void OnStyleUpdated ()
         {
-            if (changing_style) {
-                return;
-            }
-
-            changing_style = true;
-            GtkUtilities.AdaptGtkRcStyle (this, typeof (TreeView));
-            changing_style = false;
-
-            base.OnStyleSet (old_style);
+            base.OnStyleUpdated ();
 
             // FIXME: legacy list foo
             if (ViewLayout == null) {
@@ -100,7 +88,7 @@ namespace Hyena.Data.Gui
             theme = Hyena.Gui.Theming.ThemeEngine.CreateTheme (this);
 
             // Save the drawable so we can reuse it
-            Gdk.Drawable drawable = cell_context != null ? cell_context.Drawable : null;
+            var drawable = cell_context != null ? cell_context.Drawable : null;
 
             if (pango_layout != null) {
                 cell_context.FontDescription.Dispose ();
@@ -129,65 +117,61 @@ namespace Hyena.Data.Gui
             }
         }
 
-        protected override bool OnExposeEvent (EventExpose evnt)
+        protected override bool OnDrawn (Cairo.Context cr)
         {
             if (DoNotRenderNullModel && Model == null) {
                 return true;
             }
 
-            var damage = new Rectangle ();
-            foreach (Rectangle rect in evnt.Region.GetRectangles ()) {
-                damage = damage.Union (rect);
-            }
-
-            cairo_context = CairoHelper.Create (evnt.Window);
-
             cell_context.Layout = PangoLayout;
-            cell_context.Context = cairo_context;
+            cell_context.Context = cr;
 
             // FIXME: legacy list foo
             if (ViewLayout == null) {
                 OnMeasure ();
             }
+            // treview style
+            StyleContext.Save ();
 
-            Theme.DrawFrameBackground (cairo_context, Allocation, true);
+            StyleContext.AddClass ("view");
+            StyleContext.RenderBackground (cr, 0, 0, Allocation.Width, Allocation.Height);
+            StyleContext.RemoveClass ("view");
 
             // FIXME: ViewLayout will never be null in the future but we'll need
             // to deterministically render a header somehow...
             if (header_visible && ViewLayout == null && column_controller != null) {
-                PaintHeader (damage);
+                PaintHeader (cr);
             }
+
 
             if (Model != null) {
                 // FIXME: ViewLayout will never be null in
                 // the future, PaintList will go away
                 if (ViewLayout == null) {
-                    PaintList (damage);
+                    PaintList (cr, Allocation);
                 } else {
-                    PaintView ((Rect)damage);
+                    PaintView (cr, new Rect (0.0, 0.0, Allocation.Width, Allocation.Height));
                 }
             }
 
-            Theme.DrawFrameBorder (cairo_context, Allocation);
+            Theme.DrawFrameBorder (cr, Allocation);
 
-            PaintDraggingColumn (damage);
-
-            CairoExtensions.DisposeContext (cairo_context);
-
+            PaintDraggingColumn (cr);
+            StyleContext.Restore ();
             return true;
         }
 
 #region Header Rendering
 
-        private void PaintHeader (Rectangle clip)
+        private void PaintHeader (Cairo.Context cr)
         {
-            Rectangle rect = header_rendering_alloc;
-            rect.Height += Theme.BorderWidth;
-            clip.Intersect (rect);
-            cairo_context.Rectangle (clip.X, clip.Y, clip.Width, clip.Height);
-            cairo_context.Clip ();
+            Rectangle clip = header_rendering_alloc;
+            clip.Height += Theme.BorderWidth;
+            clip.Intersect (new Gdk.Rectangle (0, 0, Allocation.Width, Allocation.Height));
+            cr.Rectangle (clip.X, clip.Y, clip.Width, clip.Height);
+            cr.Clip ();
 
-            Theme.DrawHeaderBackground (cairo_context, header_rendering_alloc);
+            Theme.DrawHeaderBackground (cr, header_rendering_alloc);
 
             Rectangle cell_area = new Rectangle ();
             cell_area.Y = header_rendering_alloc.Y;
@@ -206,58 +190,64 @@ namespace Hyena.Data.Gui
 
                 cell_area.X = column_cache[ci].X1 + Theme.TotalBorderWidth + header_rendering_alloc.X - HadjustmentValue;
                 cell_area.Width = column_cache[ci].Width;
-                PaintHeaderCell (cell_area, ci, false, ref have_drawn_separator);
+                PaintHeaderCell (cr, cell_area, ci, false, ref have_drawn_separator);
             }
 
             if (pressed_column_is_dragging && pressed_column_index >= 0) {
-                cell_area.X = pressed_column_x_drag + Allocation.X - HadjustmentValue;
+                cell_area.X = pressed_column_x_drag - HadjustmentValue;
                 cell_area.Width = column_cache[pressed_column_index].Width;
-                PaintHeaderCell (cell_area, pressed_column_index, true, ref have_drawn_separator);
+                PaintHeaderCell (cr, cell_area, pressed_column_index, true, ref have_drawn_separator);
             }
 
-            cairo_context.ResetClip ();
+            cr.ResetClip ();
         }
 
-        private void PaintHeaderCell (Rectangle area, int ci, bool dragging, ref bool have_drawn_separator)
+        private void PaintHeaderCell (Cairo.Context cr, Rectangle area, int ci, bool dragging, ref bool have_drawn_separator)
         {
             if (ci < 0 || column_cache.Length <= ci)
                 return;
 
             if (ci == ActiveColumn && HasFocus && HeaderFocused) {
-                Theme.DrawColumnHeaderFocus (cairo_context, area);
+                Theme.DrawColumnHeaderFocus (cr, area);
             }
 
             if (dragging) {
-                Theme.DrawColumnHighlight (cairo_context, area,
-                    CairoExtensions.ColorShade (Theme.Colors.GetWidgetColor (GtkColorClass.Dark, StateType.Normal), 0.9));
+                Cairo.Color dark_color = CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetBackgroundColor (StateFlags.Normal));
+                dark_color = CairoExtensions.ColorShade (dark_color, 0.7);
 
-                Cairo.Color stroke_color = CairoExtensions.ColorShade (Theme.Colors.GetWidgetColor (
-                    GtkColorClass.Base, StateType.Normal), 0.0);
+                Theme.DrawColumnHighlight (cr, area, dark_color);
+
+                StyleContext.Save ();
+                StyleContext.AddClass ("entry");
+                Cairo.Color base_color = CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetBackgroundColor (StateFlags.Normal));
+                StyleContext.Restore ();
+
+                Cairo.Color stroke_color = CairoExtensions.ColorShade (base_color, 0.0);
                 stroke_color.A = 0.3;
 
-                cairo_context.Color = stroke_color;
-                cairo_context.MoveTo (area.X + 0.5, area.Y + 1.0);
-                cairo_context.LineTo (area.X + 0.5, area.Bottom);
-                cairo_context.MoveTo (area.Right - 0.5, area.Y + 1.0);
-                cairo_context.LineTo (area.Right - 0.5, area.Bottom);
-                cairo_context.Stroke ();
+                cr.SetSourceColor (stroke_color);
+                cr.MoveTo (area.X + 0.5, area.Y + 1.0);
+                cr.LineTo (area.X + 0.5, area.Bottom);
+                cr.MoveTo (area.Right - 0.5, area.Y + 1.0);
+                cr.LineTo (area.Right - 0.5, area.Bottom);
+                cr.Stroke ();
             }
 
             ColumnCell cell = column_cache[ci].Column.HeaderCell;
 
             if (cell != null) {
-                cairo_context.Save ();
-                cairo_context.Translate (area.X, area.Y);
+                cr.Save ();
+                cr.Translate (area.X, area.Y);
                 cell_context.Area = area;
-                cell_context.State = StateType.Normal;
+                cell_context.State = StateFlags.Normal;
                 cell.Render (cell_context, area.Width, area.Height);
-                cairo_context.Restore ();
+                cr.Restore ();
             }
 
             if (!dragging && ci < column_cache.Length - 1 && (have_drawn_separator ||
                 column_cache[ci].MaxWidth != column_cache[ci].MinWidth)) {
                 have_drawn_separator = true;
-                Theme.DrawHeaderSeparator (cairo_context, area, area.Right);
+                Theme.DrawHeaderSeparator (cr, area, area.Right);
             }
         }
 
@@ -265,7 +255,7 @@ namespace Hyena.Data.Gui
 
 #region List Rendering
 
-        private void PaintList (Rectangle clip)
+        private void PaintList (Cairo.Context cr, Rectangle clip)
         {
             if (ChildSize.Height <= 0) {
                 return;
@@ -275,15 +265,17 @@ namespace Hyena.Data.Gui
             // Render the sort effect to the GdkWindow.
             if (sort_column_index != -1 && (!pressed_column_is_dragging || pressed_column_index != sort_column_index)) {
                 CachedColumn col = column_cache[sort_column_index];
-                Theme.DrawRowRule (cairo_context,
+                StyleContext.AddRegion ("column", RegionFlags.Sorted);
+                StyleContext.RenderBackground (cr,
                     list_rendering_alloc.X + col.X1 - HadjustmentValue,
                     header_rendering_alloc.Bottom + Theme.BorderWidth,
                     col.Width, list_rendering_alloc.Height + Theme.InnerBorderWidth * 2);
+                StyleContext.RemoveRegion ("column");
             }
 
             clip.Intersect (list_rendering_alloc);
-            cairo_context.Rectangle (clip.X, clip.Y, clip.Width, clip.Height);
-            cairo_context.Clip ();
+            cr.Rectangle (clip.X, clip.Y, clip.Width, clip.Height);
+            cr.Clip ();
 
             cell_context.Clip = clip;
             cell_context.TextAsForeground = false;
@@ -318,12 +310,16 @@ namespace Hyena.Data.Gui
                         selected_focus_alloc = single_list_alloc;
                     }
                 } else {
-                    if (rules_hint && ri % 2 != 0) {
-                        Theme.DrawRowRule (cairo_context, single_list_alloc.X, single_list_alloc.Y,
-                            single_list_alloc.Width, single_list_alloc.Height);
+                    StyleContext.AddClass ("cell");
+                    if (rules_hint) { // TODO: check also gtk_widget_style_get(widget,"allow-rules",&allow_rules,NULL);
+                        StyleContext.AddRegion ("row", ri % 2 != 0 ? RegionFlags.Odd : RegionFlags.Even);
                     }
+                    StyleContext.RenderBackground (cr, single_list_alloc.X, single_list_alloc.Y,
+                        single_list_alloc.Width, single_list_alloc.Height);
+                    StyleContext.RemoveRegion ("row");
+                    StyleContext.RemoveClass ("cell");
 
-                    PaintReorderLine (ri, single_list_alloc);
+                    PaintReorderLine (cr, ri, single_list_alloc);
 
                     if (Selection != null && Selection.FocusedIndex == ri && !Selection.Contains (ri) && HasFocus) {
                         CairoCorners corners = CairoCorners.All;
@@ -337,66 +333,89 @@ namespace Hyena.Data.Gui
                         }
 
                         if (HasFocus && !HeaderFocused) // Cursor out of selection.
-                            Theme.DrawRowCursor (cairo_context, single_list_alloc.X, single_list_alloc.Y,
+                            Theme.DrawRowCursor (cr, single_list_alloc.X, single_list_alloc.Y,
                                                  single_list_alloc.Width, single_list_alloc.Height,
-                                                 CairoExtensions.ColorShade (Theme.Colors.GetWidgetColor (GtkColorClass.Background, StateType.Selected), 0.85));
+                                                 CairoExtensions.ColorShade (CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetBackgroundColor (StateFlags.Selected)), 0.85));
                     }
 
                     if (selection_height > 0) {
-                        Cairo.Color selection_color = Theme.Colors.GetWidgetColor (GtkColorClass.Background, StateType.Selected);
+
+                        StyleContext.AddClass ("cell");
+                        var bg_selected_color = StyleContext.GetBackgroundColor (StateFlags.Selected);
+
+                        if (bg_selected_color.Equals (StyleContext.GetBackgroundColor (StateFlags.Normal))) {
+                            // see https://bugs.launchpad.net/bugs/1211831
+                            Hyena.Log.Warning ("Buggy CSS theme: same background-color for .cell:selected and .cell");
+                            StyleContext.RemoveClass ("cell");
+                            bg_selected_color = StyleContext.GetBackgroundColor (StateFlags.Selected);
+                            StyleContext.AddClass ("cell");
+                        }
+                        Cairo.Color selection_color = CairoExtensions.GdkRGBAToCairoColor (bg_selected_color);
+
                         if (!HasFocus || HeaderFocused)
                             selection_color = CairoExtensions.ColorShade (selection_color, 1.1);
 
-                        Theme.DrawRowSelection (cairo_context, list_rendering_alloc.X, selection_y, list_rendering_alloc.Width, selection_height,
+                        Theme.DrawRowSelection (cr, list_rendering_alloc.X, selection_y, list_rendering_alloc.Width, selection_height,
                                                 true, true, selection_color, CairoCorners.All);
+                        StyleContext.RemoveClass ("cell");
                         selection_height = 0;
                     }
 
-                    PaintRow (ri, single_list_alloc, StateType.Normal);
+                    PaintRow (cr, ri, single_list_alloc, StateFlags.Normal);
                 }
 
                 single_list_alloc.Y += single_list_alloc.Height;
             }
 
             // In case the user is dragging to the end of the list
-            PaintReorderLine (last_row, single_list_alloc);
+            PaintReorderLine (cr, last_row, single_list_alloc);
 
             if (selection_height > 0) {
-                Theme.DrawRowSelection (cairo_context, list_rendering_alloc.X, selection_y,
+                Theme.DrawRowSelection (cr, list_rendering_alloc.X, selection_y,
                     list_rendering_alloc.Width, selection_height);
             }
 
             if (Selection != null && Selection.Count > 1 &&
                 !selected_focus_alloc.Equals (Rectangle.Zero) &&
                 HasFocus && !HeaderFocused) { // Cursor inside selection.
-                Theme.DrawRowCursor (cairo_context, selected_focus_alloc.X, selected_focus_alloc.Y,
-                    selected_focus_alloc.Width, selected_focus_alloc.Height,
-                    Theme.Colors.GetWidgetColor (GtkColorClass.Text, StateType.Selected));
+                // Use entry to get text color
+                StyleContext.Save ();
+                StyleContext.AddClass ("entry");
+                Cairo.Color text_color = CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetColor (StateFlags.Selected));
+                StyleContext.Restore ();
+
+                Theme.DrawRowCursor (cr, selected_focus_alloc.X, selected_focus_alloc.Y,
+                    selected_focus_alloc.Width, selected_focus_alloc.Height, text_color);
             }
 
             foreach (int ri in selected_rows) {
                 single_list_alloc.Y = offset + ((ri - first_row) * single_list_alloc.Height);
-                PaintRow (ri, single_list_alloc, StateType.Selected);
+                PaintRow (cr, ri, single_list_alloc, StateFlags.Selected);
             }
 
-            cairo_context.ResetClip ();
+            cr.ResetClip ();
         }
 
-        private void PaintReorderLine (int row_index, Rectangle single_list_alloc)
+        private void PaintReorderLine (Cairo.Context cr, int row_index, Rectangle single_list_alloc)
         {
             if (row_index == drag_reorder_row_index && IsReorderable) {
-                cairo_context.Save ();
-                cairo_context.LineWidth = 1.0;
-                cairo_context.Antialias = Cairo.Antialias.None;
-                cairo_context.MoveTo (single_list_alloc.Left, single_list_alloc.Top);
-                cairo_context.LineTo (single_list_alloc.Right, single_list_alloc.Top);
-                cairo_context.Color = Theme.Colors.GetWidgetColor (GtkColorClass.Text, StateType.Normal);
-                cairo_context.Stroke ();
-                cairo_context.Restore ();
+                cr.Save ();
+                cr.LineWidth = 1.0;
+                cr.Antialias = Cairo.Antialias.None;
+                cr.MoveTo (single_list_alloc.Left, single_list_alloc.Top);
+                cr.LineTo (single_list_alloc.Right, single_list_alloc.Top);
+
+                StyleContext.Save ();
+                StyleContext.AddClass ("entry");
+                cr.SetSourceColor (CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetColor (StateFlags.Normal)));
+                StyleContext.Restore ();
+
+                cr.Stroke ();
+                cr.Restore ();
             }
         }
 
-        private void PaintRow (int row_index, Rectangle area, StateType state)
+        private void PaintRow (Cairo.Context cr, int row_index, Rectangle area, StateFlags state)
         {
             if (column_cache == null) {
                 return;
@@ -421,19 +440,19 @@ namespace Hyena.Data.Gui
 
                 cell_area.Width = column_cache[ci].Width;
                 cell_area.X = column_cache[ci].X1 + area.X;
-                PaintCell (item, ci, row_index, cell_area, opaque, bold, state, false);
+                PaintCell (cr, item, ci, row_index, cell_area, opaque, bold, state, false);
             }
 
             if (pressed_column_is_dragging && pressed_column_index >= 0) {
                 cell_area.Width = column_cache[pressed_column_index].Width;
                 cell_area.X = pressed_column_x_drag + list_rendering_alloc.X -
                     list_interaction_alloc.X - HadjustmentValue;
-                PaintCell (item, pressed_column_index, row_index, cell_area, opaque, bold, state, true);
+                PaintCell (cr, item, pressed_column_index, row_index, cell_area, opaque, bold, state, true);
             }
         }
 
-        private void PaintCell (object item, int column_index, int row_index, Rectangle area, bool opaque, bool bold,
-            StateType state, bool dragging)
+        private void PaintCell (Cairo.Context cr, object item, int column_index, int row_index, Rectangle area, bool opaque, bool bold,
+            StateFlags state, bool dragging)
         {
             ColumnCell cell = column_cache[column_index].Column.GetCell (0);
             cell.Bind (item);
@@ -446,25 +465,28 @@ namespace Hyena.Data.Gui
             }
 
             if (dragging) {
-                Cairo.Color fill_color = Theme.Colors.GetWidgetColor (GtkColorClass.Base, StateType.Normal);
+                StyleContext.Save ();
+                StyleContext.AddClass ("entry");
+                Cairo.Color fill_color = CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetBackgroundColor (StateFlags.Normal));
+                StyleContext.Restore ();
                 fill_color.A = 0.5;
-                cairo_context.Color = fill_color;
-                cairo_context.Rectangle (area.X, area.Y, area.Width, area.Height);
-                cairo_context.Fill ();
+                cr.SetSourceColor (fill_color);
+                cr.Rectangle (area.X, area.Y, area.Width, area.Height);
+                cr.Fill ();
             }
 
-            cairo_context.Save ();
-            cairo_context.Translate (area.X, area.Y);
+            cr.Save ();
+            cr.Translate (area.X, area.Y);
             cell_context.Area = area;
             cell_context.Opaque = opaque;
-            cell_context.State = dragging ? StateType.Normal : state;
+            cell_context.State = dragging ? StateFlags.Normal : state;
             cell.Render (cell_context, area.Width, area.Height);
-            cairo_context.Restore ();
+            cr.Restore ();
 
             AccessibleCellRedrawn (column_index, row_index);
         }
 
-        private void PaintDraggingColumn (Rectangle clip)
+        private void PaintDraggingColumn (Cairo.Context cr)
         {
             if (!pressed_column_is_dragging || pressed_column_index < 0) {
                 return;
@@ -472,39 +494,41 @@ namespace Hyena.Data.Gui
 
             CachedColumn column = column_cache[pressed_column_index];
 
-            int x = pressed_column_x_drag + Allocation.X + 1 - HadjustmentValue;
+            int x = pressed_column_x_drag + 1 - HadjustmentValue;
 
-            Cairo.Color fill_color = Theme.Colors.GetWidgetColor (GtkColorClass.Base, StateType.Normal);
+            StyleContext.Save ();
+            StyleContext.AddClass ("entry");
+            Cairo.Color fill_color = CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetBackgroundColor (StateFlags.Normal));
+
+            Cairo.Color stroke_color = CairoExtensions.ColorShade (fill_color, 0.0);
             fill_color.A = 0.45;
-
-            Cairo.Color stroke_color = CairoExtensions.ColorShade (Theme.Colors.GetWidgetColor (
-                GtkColorClass.Base, StateType.Normal), 0.0);
             stroke_color.A = 0.3;
+            StyleContext.Restore ();
 
-            cairo_context.Rectangle (x, header_rendering_alloc.Bottom + 1, column.Width - 2,
+            cr.Rectangle (x, header_rendering_alloc.Bottom + 1, column.Width - 2,
                 list_rendering_alloc.Bottom - header_rendering_alloc.Bottom - 1);
-            cairo_context.Color = fill_color;
-            cairo_context.Fill ();
+            cr.SetSourceColor (fill_color);
+            cr.Fill ();
 
-            cairo_context.MoveTo (x - 0.5, header_rendering_alloc.Bottom + 0.5);
-            cairo_context.LineTo (x - 0.5, list_rendering_alloc.Bottom + 0.5);
-            cairo_context.LineTo (x + column.Width - 1.5, list_rendering_alloc.Bottom + 0.5);
-            cairo_context.LineTo (x + column.Width - 1.5, header_rendering_alloc.Bottom + 0.5);
+            cr.MoveTo (x - 0.5, header_rendering_alloc.Bottom + 0.5);
+            cr.LineTo (x - 0.5, list_rendering_alloc.Bottom + 0.5);
+            cr.LineTo (x + column.Width - 1.5, list_rendering_alloc.Bottom + 0.5);
+            cr.LineTo (x + column.Width - 1.5, header_rendering_alloc.Bottom + 0.5);
 
-            cairo_context.Color = stroke_color;
-            cairo_context.LineWidth = 1.0;
-            cairo_context.Stroke ();
+            cr.SetSourceColor (stroke_color);
+            cr.LineWidth = 1.0;
+            cr.Stroke ();
         }
 
 #endregion
 
 #region View Layout Rendering
 
-        private void PaintView (Rect clip)
+        private void PaintView (Cairo.Context cr, Rect clip)
         {
             clip.Intersect ((Rect)list_rendering_alloc);
-            cairo_context.Rectangle ((Cairo.Rectangle)clip);
-            cairo_context.Clip ();
+            cr.Rectangle ((Cairo.Rectangle)clip);
+            cr.Clip ();
 
             cell_context.Clip = (Gdk.Rectangle)clip;
             cell_context.TextAsForeground = false;
@@ -522,30 +546,30 @@ namespace Hyena.Data.Gui
                 if (Selection != null && Selection.Contains (ViewLayout.GetModelIndex (layout_child))) {
                     selected_rows.Add (ViewLayout.GetModelIndex (layout_child));
 
-                    var selection_color = Theme.Colors.GetWidgetColor (GtkColorClass.Background, StateType.Selected);
+                    var selection_color = CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetBackgroundColor (StateFlags.Selected));
                     if (!HasFocus || HeaderFocused) {
                         selection_color = CairoExtensions.ColorShade (selection_color, 1.1);
                     }
 
-                    Theme.DrawRowSelection (cairo_context,
+                    Theme.DrawRowSelection (cr,
                         (int)child_allocation.X, (int)child_allocation.Y,
                         (int)child_allocation.Width, (int)child_allocation.Height,
                         true, true, selection_color, CairoCorners.All);
 
-                    cell_context.State = StateType.Selected;
+                    cell_context.State = StateFlags.Selected;
                 } else {
-                    cell_context.State = StateType.Normal;
+                    cell_context.State = StateFlags.Normal;
                 }
 
-                //cairo_context.Save ();
-                //cairo_context.Translate (child_allocation.X, child_allocation.Y);
-                //cairo_context.Rectangle (0, 0, child_allocation.Width, child_allocation.Height);
-                //cairo_context.Clip ();
+                //cr.Save ();
+                //cr.Translate (child_allocation.X, child_allocation.Y);
+                //cr.Rectangle (0, 0, child_allocation.Width, child_allocation.Height);
+                //cr.Clip ();
                 layout_child.Render (cell_context);
-                //cairo_context.Restore ();
+                //cr.Restore ();
             }
 
-            cairo_context.ResetClip ();
+            cr.ResetClip ();
         }
 
 #endregion

@@ -41,13 +41,13 @@ namespace Hyena.Gui.Canvas
 
             var x = rect.Width / 2.0;
             var y = rect.Height / 2.0;
-            var grad = new Cairo.RadialGradient (x, y, 0, x, y, rect.Width / 2.0);
-            grad.AddColorStop (0, new Cairo.Color (0, 0, 0, 0.1 * opacity));
-            grad.AddColorStop (1, new Cairo.Color (0, 0, 0, 0.35 * opacity));
-            cr.Pattern = grad;
-            CairoExtensions.RoundedRectangle (cr, rect.X, rect.Y, rect.Width, rect.Height, theme.Context.Radius);
-            cr.Fill ();
-            grad.Destroy ();
+            using (var grad = new Cairo.RadialGradient (x, y, 0, x, y, rect.Width / 2.0)) {
+                grad.AddColorStop (0, new Cairo.Color (0, 0, 0, 0.1 * opacity));
+                grad.AddColorStop (1, new Cairo.Color (0, 0, 0, 0.35 * opacity));
+                cr.SetSource (grad);
+                CairoExtensions.RoundedRectangle (cr, rect.X, rect.Y, rect.Width, rect.Height, theme.Context.Radius);
+                cr.Fill ();
+            }
 
             cr.Restore ();
         }

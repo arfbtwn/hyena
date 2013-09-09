@@ -153,28 +153,31 @@ namespace Hyena.Gui.Canvas
             double throbber_y = (Allocation.Height - ThrobberSize) / 2.0 - Margin.Top + throbber_r;
             double bar_w = RenderSize.Width * Value;
 
-            cr.Color = Theme.Colors.GetWidgetColor (GtkColorClass.Base, Gtk.StateType.Normal);
-            cr.Rectangle (0, 0, RenderSize.Width, RenderSize.Height);
-            cr.Fill ();
+            Theme.Widget.StyleContext.Save ();
+            Theme.Widget.StyleContext.AddClass ("entry");
+            Theme.Widget.StyleContext.RenderBackground (cr, 0, 0, RenderSize.Width, RenderSize.Height);
+            var color = CairoExtensions.GdkRGBAToCairoColor (Theme.Widget.StyleContext.GetColor (Gtk.StateFlags.Active));
+            Theme.Widget.StyleContext.Restore ();
 
-            Color color = Theme.Colors.GetWidgetColor (GtkColorClass.Dark, Gtk.StateType.Active);
+            // TODO get Dark color
             Color fill_color = CairoExtensions.ColorShade (color, 0.4);
             Color light_fill_color = CairoExtensions.ColorShade (color, 0.3);
             fill_color.A = 1.0;
             light_fill_color.A = 1.0;
 
-            LinearGradient fill = new LinearGradient (0, 0, 0, RenderSize.Height);
-            fill.AddColorStop (0, light_fill_color);
-            fill.AddColorStop (0.5, fill_color);
-            fill.AddColorStop (1, light_fill_color);
+            using (var fill = new LinearGradient (0, 0, 0, RenderSize.Height)) {
+                fill.AddColorStop (0, light_fill_color);
+                fill.AddColorStop (0.5, fill_color);
+                fill.AddColorStop (1, light_fill_color);
 
-            cr.Rectangle (0, 0, bar_w, RenderSize.Height);
-            cr.Pattern = fill;
-            cr.Fill ();
+                cr.Rectangle (0, 0, bar_w, RenderSize.Height);
+                cr.SetSource (fill);
+                cr.Fill ();
 
-            cr.Color = fill_color;
-            cr.Arc (throbber_x, throbber_y, throbber_r, 0, Math.PI * 2);
-            cr.Fill ();
+                cr.SetSourceColor (fill_color);
+                cr.Arc (throbber_x, throbber_y, throbber_r, 0, Math.PI * 2);
+                cr.Fill ();
+            }
         }
 
         public override Size Measure (Size available)

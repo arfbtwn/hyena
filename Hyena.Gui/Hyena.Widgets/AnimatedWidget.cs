@@ -1,5 +1,5 @@
 //
-// AnimatedVboxActor.cs
+// AnimatedWidget.cs
 //
 // Authors:
 //   Scott Peterson <lunchtimemama@gmail.com>
@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using Gdk;
 using Gtk;
 
+using Hyena.Gui;
 using Hyena.Gui.Theatrics;
 
 namespace Hyena.Widgets
@@ -62,7 +63,7 @@ namespace Hyena.Widgets
         private readonly bool horizontal;
         private double percent;
         private Rectangle widget_alloc;
-        private Pixmap canvas;
+        private Cairo.Surface surface;
 
         public AnimatedWidget (Widget widget, uint duration, Easing easing, Blocking blocking, bool horizontal)
         {
@@ -96,12 +97,17 @@ namespace Hyena.Widgets
                 return;
             }
 
-            canvas = new Pixmap (GdkWindow, widget_alloc.Width, widget_alloc.Height);
-            canvas.DrawDrawable (Style.BackgroundGC (State), GdkWindow,
-                widget_alloc.X, widget_alloc.Y, 0, 0, widget_alloc.Width, widget_alloc.Height);
+            // Copy the widget's pixels to surface, we'll use it to draw the animation
+            surface = Window.CreateSimilarSurface (Cairo.Content.ColorAlpha, widget_alloc.Width, widget_alloc.Height);
+            using (var cr = new Cairo.Context (surface)) {
+                Gdk.CairoHelper.SetSourceWindow (cr, Window, widget_alloc.X, widget_alloc.Y);
+                cr.Rectangle (0, 0, widget_alloc.Width, widget_alloc.Height);
+                cr.Fill ();
 
-            if (AnimationState != AnimationState.Going) {
-                WidgetDestroyed (this, args);
+                if (AnimationState != AnimationState.Going) {
+                    WidgetDestroyed (this, args);
+                }
+
             }
         }
 
@@ -117,23 +123,36 @@ namespace Hyena.Widgets
 
         protected override void OnRealized ()
         {
-            WidgetFlags |= WidgetFlags.Realized;
+            IsRealized = true;
 
             Gdk.WindowAttr attributes = new Gdk.WindowAttr ();
             attributes.WindowType = Gdk.WindowType.Child;
-            attributes.Wclass = Gdk.WindowClass.InputOutput;
+            attributes.Wclass = Gdk.WindowWindowClass.InputOutput;
             attributes.EventMask = (int)Gdk.EventMask.ExposureMask;
 
-            GdkWindow = new Gdk.Window (Parent.GdkWindow, attributes, 0);
-            GdkWindow.UserData = Handle;
-            GdkWindow.Background = Style.Background (State);
-            Style.Attach (GdkWindow);
+            Window = new Gdk.Window (Parent.Window, attributes, 0);
+            Window.UserData = Handle;
+            Window.BackgroundRgba = StyleContext.GetBackgroundColor (StateFlags);
         }
 
-        protected override void OnSizeRequested (ref Requisition requisition)
+        protected override void OnGetPreferredHeight (out int minimum_height, out int natural_height)
         {
+            var requisition = SizeRequested ();
+            minimum_height = natural_height = requisition.Height;
+        }
+
+        protected override void OnGetPreferredWidth (out int minimum_width, out int natural_width)
+        {
+            var requisition = SizeRequested ();
+            minimum_width = natural_width = requisition.Width;
+        }
+
+        protected Requisition SizeRequested ()
+        {
+            var requisition = new Requisition ();
             if (Widget != null) {
-                Requisition req = Widget.SizeRequest ();
+                Requisition req, nat;
+                Widget.GetPreferredSize (out req, out nat);
                 widget_alloc.Width = req.Width;
                 widget_alloc.Height = req.Height;
             }
@@ -148,6 +167,7 @@ namespace Hyena.Widgets
 
             requisition.Width = Width;
             requisition.Height = Height;
+            return requisition;
         }
 
         protected override void OnSizeAllocated (Rectangle allocation)
@@ -174,14 +194,18 @@ namespace Hyena.Widgets
             }
         }
 
-        protected override bool OnExposeEvent (EventExpose evnt)
+        protected override bool OnDrawn (Cairo.Context cr)
         {
-            if (canvas != null) {
-                GdkWindow.DrawDrawable (Style.BackgroundGC (State), canvas,
-                    0, 0, widget_alloc.X, widget_alloc.Y, widget_alloc.Width, widget_alloc.Height);
+            if (surface != null) {
+                cr.Save ();
+                Gtk.CairoHelper.TransformToWindow (cr, this, Window);
+                cr.SetSource (surface);
+                cr.Rectangle (widget_alloc.X, widget_alloc.Y, widget_alloc.Width, widget_alloc.Height);
+                cr.Fill ();
+                cr.Restore ();
                 return true;
             } else {
-                return base.OnExposeEvent (evnt);
+                return base.OnDrawn (cr);
             }
         }
 

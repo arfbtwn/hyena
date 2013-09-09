@@ -6,10 +6,12 @@
 //   Gabriel Burt <gburt@novell.com>
 //   Eitan Isaacson <eitan@ascender.com>
 //   Alex Launi <alex.launi@canonical.com>
+//   Andrés G. Aragoneses <knocte@gmail.com>
 //
 // Copyright (C) 2007-2009 Novell, Inc.
 // Copyright (C) 2009 Eitan Isaacson
 // Copyright (C) 2010 Alex Launi
+// Copyright (C) 2013 Andrés G. Aragoneses
 //
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -40,7 +42,7 @@ using Selection = Hyena.Collections.Selection;
 
 namespace Hyena.Data.Gui
 {
-    public partial class ListView<T> : ListViewBase
+    public partial class ListView<T> : ListViewBase, IScrollableImplementor
     {
         private enum KeyDirection {
             Press,
@@ -76,11 +78,37 @@ namespace Hyena.Data.Gui
         private Adjustment vadjustment;
         public Adjustment Vadjustment {
             get { return vadjustment; }
+            set {
+                if (value == vadjustment) {
+                    return;
+                }
+                if (vadjustment != null) {
+                    vadjustment.ValueChanged -= OnVadjustmentChanged;
+                }
+                vadjustment = value;
+                if (vadjustment != null) {
+                    vadjustment.ValueChanged += OnVadjustmentChanged;
+                }
+                UpdateAdjustments ();
+            }
         }
 
         private Adjustment hadjustment;
         public Adjustment Hadjustment {
             get { return hadjustment; }
+            set {
+                if (value == hadjustment) {
+                    return;
+                }
+                if (hadjustment != null) {
+                    hadjustment.ValueChanged -= OnHadjustmentChanged;
+                }
+                hadjustment = value;
+                if (hadjustment != null) {
+                    hadjustment.ValueChanged += OnHadjustmentChanged;
+                }
+                UpdateAdjustments ();
+            }
         }
 
         private SelectionProxy selection_proxy = new SelectionProxy ();
@@ -706,7 +734,7 @@ namespace Hyena.Data.Gui
             if (resizing_column_index >= 0) {
                 pressed_column_index = -1;
                 resizing_column_index = -1;
-                GdkWindow.Cursor = null;
+                Window.Cursor = null;
                 return true;
             }
 
@@ -805,7 +833,7 @@ namespace Hyena.Data.Gui
                 return true;
             }
 
-            GdkWindow.Cursor = header_interaction_alloc.Contains ((int)evnt.X, (int)evnt.Y) &&
+            Window.Cursor = header_interaction_alloc.Contains ((int)evnt.X, (int)evnt.Y) &&
                 (resizing_column_index >= 0 || GetColumnForResizeHandle (x) != null)
                 ? resize_x_cursor
                 : null;
@@ -831,7 +859,7 @@ namespace Hyena.Data.Gui
 
             OnDragScroll (OnDragHScrollTimeout, header_interaction_alloc.Width * 0.1, header_interaction_alloc.Width, x);
 
-            GdkWindow.Cursor = drag_cursor;
+            Window.Cursor = drag_cursor;
 
             Column swap_column = GetColumnAt (x);
 
@@ -875,7 +903,7 @@ namespace Hyena.Data.Gui
         protected override bool OnLeaveNotifyEvent (Gdk.EventCrossing evnt)
         {
             if (evnt.Mode == Gdk.CrossingMode.Normal) {
-                GdkWindow.Cursor = null;
+                Window.Cursor = null;
                 if (LayoutChildHandlesEvent (evnt, false)) {
                     return true;
                 }
@@ -923,7 +951,7 @@ namespace Hyena.Data.Gui
             if (pressed_column_index >= 0 && pressed_column_is_dragging) {
                 pressed_column_is_dragging = false;
                 pressed_column_index = -1;
-                GdkWindow.Cursor = null;
+                Window.Cursor = null;
                 QueueDirtyRegion ();
                 return true;
             }
@@ -972,48 +1000,55 @@ namespace Hyena.Data.Gui
 
 #region Adjustments & Scrolling
 
-        private void UpdateAdjustments ()
-        {
-            UpdateAdjustments (null, null);
+        public Gtk.ScrollablePolicy HscrollPolicy {
+            get; set;
         }
 
-        private void UpdateAdjustments (Adjustment hadj, Adjustment vadj)
+        public Gtk.ScrollablePolicy VscrollPolicy {
+            get; set;
+        }
+
+        private void UpdateAdjustments ()
         {
-            if (hadj != null) {
-                hadjustment = hadj;
-            }
-
-            if (vadj != null) {
-                vadjustment = vadj;
-            }
-
             // FIXME: with ViewLayout, hadj and vadj should be unified
             // since the layout will take the header into account...
             if (hadjustment != null) {
                 hadjustment.Upper = header_width;
                 hadjustment.StepIncrement = 10.0;
                 if (hadjustment.Value + hadjustment.PageSize > hadjustment.Upper) {
-                    hadjustment.Value = hadjustment.Upper - hadjustment.PageSize;
+                    hadjustment.Value = Math.Max (0, hadjustment.Upper - hadjustment.PageSize);
+                }
+                if (hadjustment.Upper > 0 && hadjustment.Upper < hadjustment.PageSize) {
+                    hadjustment.Upper = hadjustment.PageSize;
                 }
             }
 
-            if (vadjustment != null && model != null) {
-                // FIXME: hard-coded grid logic
-                if (ViewLayout != null) {
-                    vadjustment.Upper = ViewLayout.VirtualSize.Height;
-                    vadjustment.StepIncrement = ViewLayout.ChildSize.Height;
-                } else {
-                    vadjustment.Upper = ChildSize.Height * model.Count;
-                    vadjustment.StepIncrement = ChildSize.Height;
-                }
+            if (vadjustment != null) {
 
-                if (vadjustment.Value + vadjustment.PageSize > vadjustment.Upper) {
-                    vadjustment.Value = vadjustment.Upper - vadjustment.PageSize;
+                if (model != null && model.Count > 0) {
+                    // FIXME: hard-coded grid logic
+                    if (ViewLayout != null) {
+                        vadjustment.Upper = ViewLayout.VirtualSize.Height;
+                        vadjustment.StepIncrement = ViewLayout.ChildSize.Height;
+                    } else {
+                        vadjustment.Upper = ChildSize.Height * model.Count;
+                        vadjustment.StepIncrement = ChildSize.Height;
+                    }
+
+                    if (vadjustment.Value + vadjustment.PageSize > vadjustment.Upper) {
+                        vadjustment.Value = Math.Max (0, vadjustment.Upper - vadjustment.PageSize);
+                    }
+                    if (vadjustment.Upper > 0 && vadjustment.Upper < vadjustment.PageSize) {
+                        vadjustment.Upper = vadjustment.PageSize;
+                    }
+                } else {
+                    vadjustment.Upper = 0;
+                    vadjustment.Lower = 0;
+                    vadjustment.PageSize = 0;
+                    vadjustment.PageIncrement = 0;
+                    vadjustment.StepIncrement = 0;
+                    vadjustment.Value = 0;
                 }
-            } else if (vadjustment != null) {
-                // model is null
-                vadjustment.Upper = 0;
-                vadjustment.Lower = 0;
             }
 
             if (hadjustment != null) {
@@ -1090,18 +1125,6 @@ namespace Hyena.Data.Gui
                     CenterOn (Selection.Ranges[0].Start);
                 }
             }
-        }
-
-        protected override void OnSetScrollAdjustments (Adjustment hadj, Adjustment vadj)
-        {
-            if (hadj == null || vadj == null) {
-                return;
-            }
-
-            hadj.ValueChanged += OnHadjustmentChanged;
-            vadj.ValueChanged += OnVadjustmentChanged;
-
-            UpdateAdjustments (hadj, vadj);
         }
 
 #endregion

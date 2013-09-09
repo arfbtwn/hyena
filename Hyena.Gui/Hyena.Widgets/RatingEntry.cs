@@ -54,7 +54,7 @@ namespace Hyena.Widgets
 
         public RatingEntry () : this (0)
         {
-            WidgetFlags |= Gtk.WidgetFlags.NoWindow;
+            HasWindow = false;
         }
 
         public RatingEntry (int rating) : this (rating, new RatingRenderer ())
@@ -153,8 +153,9 @@ namespace Hyena.Widgets
 
         protected override void OnRealized ()
         {
-            WidgetFlags |= WidgetFlags.Realized | WidgetFlags.NoWindow;
-            GdkWindow = Parent.GdkWindow;
+            IsRealized = true;
+            HasWindow = false;
+            Window = Parent.Window;
 
             Gdk.WindowAttr attributes = new Gdk.WindowAttr ();
             attributes.WindowType = Gdk.WindowType.Child;
@@ -162,7 +163,7 @@ namespace Hyena.Widgets
             attributes.Y = Allocation.Y;
             attributes.Width = Allocation.Width;
             attributes.Height = Allocation.Height;
-            attributes.Wclass = Gdk.WindowClass.InputOnly;
+            attributes.Wclass = Gdk.WindowWindowClass.InputOnly;
             attributes.EventMask = (int)(
                 Gdk.EventMask.PointerMotionMask |
                 Gdk.EventMask.EnterNotifyMask |
@@ -178,20 +179,21 @@ namespace Hyena.Widgets
                 Gdk.WindowAttributesType.Y |
                 Gdk.WindowAttributesType.Wmclass;
 
-            event_window = new Gdk.Window (GdkWindow, attributes, attributes_mask);
+            event_window = new Gdk.Window (Window, attributes, attributes_mask);
             event_window.UserData = Handle;
 
-            Style = Gtk.Rc.GetStyleByPaths (Settings, "*.GtkEntry", "*.GtkEntry", GType);
+            //TODO stylecontext is set from path and path come from name so must inherit but need to be checked!
+            //Style = Gtk.Rc.GetStyleByPaths (Settings, "*.GtkEntry", "*.GtkEntry", GType);
 
             base.OnRealized ();
         }
 
         protected override void OnUnrealized ()
         {
-            WidgetFlags &= ~WidgetFlags.Realized;
+            IsRealized = false;
 
             event_window.UserData = IntPtr.Zero;
-            Hyena.Gui.GtkWorkarounds.WindowDestroy (event_window);
+            event_window.Destroy ();
             event_window = null;
 
             base.OnUnrealized ();
@@ -199,24 +201,24 @@ namespace Hyena.Widgets
 
         protected override void OnMapped ()
         {
-            WidgetFlags |= WidgetFlags.Mapped;
+            IsMapped = true;
             event_window.Show ();
         }
 
         protected override void OnUnmapped ()
         {
-            WidgetFlags &= ~WidgetFlags.Mapped;
+            IsMapped = false;
             event_window.Hide ();
         }
 
         private bool changing_style;
-        protected override void OnStyleSet (Style previous_style)
+        protected override void OnStyleUpdated ()
         {
             if (changing_style) {
                 return;
             }
 
-            base.OnStyleSet (previous_style);
+            base.OnStyleUpdated ();
 
             changing_style = true;
             focus_width = (int)StyleGetProperty ("focus-line-width");
@@ -233,17 +235,29 @@ namespace Hyena.Widgets
             }
         }
 
-        protected override void OnSizeRequested (ref Gtk.Requisition requisition)
+        protected override void OnGetPreferredHeight (out int minimum_height, out int natural_height)
         {
-            EnsureStyle ();
+            var requisition = SizeRequested ();
+            minimum_height = natural_height = requisition.Height;
+        }
 
-            Pango.FontMetrics metrics = PangoContext.GetMetrics (Style.FontDescription, PangoContext.Language);
+        protected override void OnGetPreferredWidth (out int minimum_width, out int natural_width)
+        {
+            var requisition = SizeRequested ();
+            minimum_width = natural_width = requisition.Width;
+        }
+
+        protected Requisition SizeRequested ()
+        {
+            var requisition = new Requisition ();
+
+            Pango.FontMetrics metrics = PangoContext.GetMetrics (StyleContext.GetFont (StateFlags), PangoContext.Language);
             renderer.Size = ((int)(metrics.Ascent + metrics.Descent) + 512) >> 10; // PANGO_PIXELS(d)
             metrics.Dispose ();
 
             if (HasFrame) {
-                renderer.Xpad = Style.Xthickness + (interior_focus ? focus_width : 0) + 2;
-                renderer.Ypad = Style.Ythickness + (interior_focus ? focus_width : 0) + 2;
+                renderer.Xpad = MarginLeft + (interior_focus ? focus_width : 0) + 2;
+                renderer.Ypad = MarginTop + (interior_focus ? focus_width : 0) + 2;
             } else {
                 renderer.Xpad = 0;
                 renderer.Ypad = 0;
@@ -251,30 +265,30 @@ namespace Hyena.Widgets
 
             requisition.Width = renderer.Width;
             requisition.Height = renderer.Height;
+            return requisition;
         }
 
-        protected override bool OnExposeEvent (Gdk.EventExpose evnt)
+        protected override bool OnDrawn (Cairo.Context cr)
         {
-            if (evnt.Window != GdkWindow) {
+            if (!CairoHelper.ShouldDrawWindow(cr, Window)) {
                 return true;
             }
 
             if (HasFrame) {
                 int y_mid = (int)Math.Round ((Allocation.Height - renderer.Height) / 2.0);
-                Gtk.Style.PaintFlatBox (Style, GdkWindow, State, ShadowType.None, evnt.Area, this, "entry",
-                    Allocation.X, Allocation.Y + y_mid, Allocation.Width, renderer.Height);
-                Gtk.Style.PaintShadow (Style, GdkWindow, State, ShadowType.In,
-                    evnt.Area, this, "entry", Allocation.X, Allocation.Y + y_mid, Allocation.Width, renderer.Height);
+                StyleContext.Save ();
+                StyleContext.AddClass ("entry");
+                StyleContext.RenderBackground (cr, 0, y_mid, Allocation.Width, renderer.Height);
+                StyleContext.RenderFrame (cr, 0, y_mid, Allocation.Width, renderer.Height);
+                StyleContext.Restore ();
             }
 
-            Cairo.Context cr = Gdk.CairoHelper.Create (GdkWindow);
-            renderer.Render (cr, Allocation,
-                CairoExtensions.GdkColorToCairoColor (HasFrame ? Parent.Style.Text (State) : Parent.Style.Foreground (State)),
+            renderer.Render (cr, new Gdk.Rectangle (0, 0, Allocation.Width, Allocation.Height),
+                CairoExtensions.GdkRGBAToCairoColor ( Parent.StyleContext.GetColor (StateFlags)),
                 AlwaysShowEmptyStars, PreviewOnHover && hover_value >= renderer.MinRating, hover_value,
                 State == StateType.Insensitive ? 1 : 0.90,
                 State == StateType.Insensitive ? 1 : 0.55,
                 State == StateType.Insensitive ? 1 : 0.45);
-            CairoExtensions.DisposeContext (cr);
 
             return true;
         }
@@ -391,9 +405,7 @@ namespace Hyena.Widgets
 
     }
 
-#region Test Module
-
-    public class RatingAccessible : Atk.Object, Atk.Value, Atk.ValueImplementor
+    public class RatingAccessible : Atk.Object, Atk.IValue, Atk.IValueImplementor
     {
         private RatingEntry rating;
 
@@ -448,18 +460,17 @@ namespace Hyena.Widgets
         {
             new RatingAccessibleFactory ();
             Atk.Global.DefaultRegistry.SetFactoryType ((GLib.GType)typeof (RatingEntry), (GLib.GType)typeof (RatingAccessibleFactory));
-        }
+            CreateAccessibleHandler = (obj) => {
+                return new RatingAccessible (obj);
+            };
+            GetAccessibleTypeHandler = () => {
+                return RatingAccessible.GType;
+            };
 
-        protected override Atk.Object OnCreateAccessible (GLib.Object obj)
-        {
-            return new RatingAccessible (obj);
-        }
-
-        protected override GLib.GType OnGetAccessibleType ()
-        {
-            return RatingAccessible.GType;
         }
     }
+
+#region Test Module
 
     [Hyena.Gui.TestModule ("Rating Entry")]
     internal class RatingEntryTestModule : Gtk.Window
@@ -497,7 +508,7 @@ namespace Hyena.Widgets
             RatingEntry entry3 = new RatingEntry ();
             Pango.FontDescription fd = entry3.PangoContext.FontDescription.Copy ();
             fd.Size = (int)(fd.Size * Pango.Scale.XXLarge);
-            entry3.ModifyFont (fd);
+            entry3.OverrideFont (fd);
             fd.Dispose ();
             box.PackStart (entry3, true, true, 0);
 

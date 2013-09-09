@@ -40,13 +40,25 @@ using Selection = Hyena.Collections.Selection;
 
 namespace Hyena.Data.Gui.Tests
 {
+    [TestModule ("List View with scrollbars")]
+    public class ListViewWithScrollbarsTestModule : ListViewTestModule
+    {
+        public ListViewWithScrollbarsTestModule () : base (1000)
+        {
+        }
+    }
+
     [TestModule ("List View")]
     public class ListViewTestModule : Window
     {
         private View view;
         private Model model;
 
-        public ListViewTestModule () : base ("ListView")
+        public ListViewTestModule () : this (10)
+        {
+        }
+
+        public ListViewTestModule (int items) : base ("ListView")
         {
             WindowPosition = WindowPosition.Center;
             SetDefaultSize (800, 600);
@@ -56,7 +68,7 @@ namespace Hyena.Data.Gui.Tests
             scroll.VscrollbarPolicy = PolicyType.Automatic;
 
             view = new View ();
-            model = new Model ();
+            model = new Model (items);
 
             scroll.Add (view);
             Add (scroll);
@@ -95,7 +107,7 @@ namespace Hyena.Data.Gui.Tests
             SetDefaultSize (800, 600);
 
             view = new View ();
-            model = new Model ();
+            model = new Model (1000);
 
             /*var hbox = new HBox () { Spacing = 6 };
 
@@ -166,10 +178,10 @@ namespace Hyena.Data.Gui.Tests
         public event EventHandler Cleared;
         public event EventHandler Reloaded;
 
-        public Model ()
+        public Model (int items)
         {
             Random random = new Random (0);
-            for (int i = 0; i < 1000; i++) {
+            for (int i = 0; i < items; i++) {
                 store.Add (new ModelItem (i, random));
             }
         }
@@ -240,7 +252,7 @@ namespace Hyena.Data.Gui.Tests
             red = !red;
             Cairo.Context cr = context.Context;
             cr.Rectangle (0, 0, cellWidth, cellHeight);
-            cr.Color = CairoExtensions.RgbaToColor (red ? 0xff000099 : 0x00000099);
+            cr.SetSourceColor (CairoExtensions.RgbaToColor (red ? 0xff000099 : 0x00000099));
             cr.Fill ();
 
             List<Gdk.Point> points = Points;
@@ -252,7 +264,7 @@ namespace Hyena.Data.Gui.Tests
                 }
             }
 
-            cr.Color = CairoExtensions.RgbToColor ((uint)random.Next (0xffffff));
+            cr.SetSourceColor (CairoExtensions.RgbToColor ((uint)random.Next (0xffffff)));
             cr.LineWidth = 1;
             cr.Stroke ();
         }

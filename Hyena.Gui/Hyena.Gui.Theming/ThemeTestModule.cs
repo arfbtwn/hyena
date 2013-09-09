@@ -73,29 +73,24 @@ namespace Hyena.Gui.Theming
         {
             private Theme theme;
 
-            protected override void OnStyleSet (Style previous_style)
+            protected override void OnStyleUpdated ()
             {
-                base.OnStyleSet (previous_style);
+                base.OnStyleUpdated ();
                 theme = ThemeEngine.CreateTheme (this);
                 theme.Context.Radius = 10;
             }
 
-            protected override bool OnExposeEvent (Gdk.EventExpose evnt)
+            protected override bool OnDrawn (Cairo.Context cr)
             {
-                Cairo.Context cr = null;
-                try {
-                    var alloc = new Gdk.Rectangle () {
-                        X = Allocation.X,
-                        Y = Allocation.Y,
-                        Width = Allocation.Width,
-                        Height = Allocation.Height
-                    };
-                    cr = Gdk.CairoHelper.Create (evnt.Window);
-                    theme.DrawListBackground (cr, alloc, true);
-                    theme.DrawFrameBorder (cr, alloc);
-                } finally {
-                    CairoExtensions.DisposeContext (cr);
-                }
+                var alloc = new Gdk.Rectangle () {
+                    X = 0,
+                    Y = 0,
+                    Width = Allocation.Width,
+                    Height = Allocation.Height
+                };
+
+                theme.DrawListBackground (cr, alloc, true);
+                theme.DrawFrameBorder (cr, alloc);
                 return true;
             }
         }

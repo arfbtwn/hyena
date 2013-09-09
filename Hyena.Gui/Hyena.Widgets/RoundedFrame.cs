@@ -36,7 +36,7 @@ using Hyena.Gui.Theming;
 
 namespace Hyena.Widgets
 {
-    public class RoundedFrame : Bin
+    public class RoundedFrame : Bin, IScrollableImplementor
     {
         private Theme theme;
         protected Theme Theme {
@@ -96,19 +96,49 @@ namespace Hyena.Widgets
             set { draw_border = value; QueueDraw (); }
         }
 
+        public Gtk.ScrollablePolicy HscrollPolicy {
+            get; set;
+        }
+
+        public Gtk.ScrollablePolicy VscrollPolicy {
+            get; set;
+        }
+
+        public Gtk.Adjustment Vadjustment {
+            get; set;
+        }
+
+        public Gtk.Adjustment Hadjustment {
+            get; set;
+        }
+
 #region Gtk.Widget Overrides
 
-        protected override void OnStyleSet (Style previous_style)
+        protected override void OnStyleUpdated ()
         {
-            base.OnStyleSet (previous_style);
+            base.OnStyleUpdated ();
             InitTheme ();
         }
 
-        protected override void OnSizeRequested (ref Requisition requisition)
+        protected override void OnGetPreferredHeight (out int minimum_height, out int natural_height)
         {
+            var requisition = SizeRequested ();
+            minimum_height = natural_height = requisition.Height;
+        }
+
+        protected override void OnGetPreferredWidth (out int minimum_width, out int natural_width)
+        {
+            var requisition = SizeRequested ();
+            minimum_width = natural_width = requisition.Width;
+        }
+
+        protected Requisition SizeRequested ()
+        {
+            var requisition = new Requisition ();
             if (child != null && child.Visible) {
                 // Add the child's width/height
-                Requisition child_requisition = child.SizeRequest ();
+                Requisition child_requisition, nat_requisition;
+                child.GetPreferredSize (out child_requisition, out nat_requisition);
                 requisition.Width = Math.Max (0, child_requisition.Width);
                 requisition.Height = child_requisition.Height;
             } else {
@@ -119,6 +149,7 @@ namespace Hyena.Widgets
             // Add the frame border
             requisition.Width += ((int)BorderWidth + frame_width) * 2;
             requisition.Height += ((int)BorderWidth + frame_width) * 2;
+            return requisition;
         }
 
         protected override void OnSizeAllocated (Gdk.Rectangle allocation)
@@ -143,33 +174,18 @@ namespace Hyena.Widgets
             child.SizeAllocate (child_allocation);
         }
 
-        protected override void OnSetScrollAdjustments (Adjustment hadj, Adjustment vadj)
+        protected override bool OnDrawn (Cairo.Context cr)
         {
-            // This is to satisfy the gtk_widget_set_scroll_adjustments
-            // inside of GtkScrolledWindow so it doesn't complain about
-            // its child not being scrollable.
+            CairoHelper.TransformToWindow (cr, this, Window);
+
+            DrawFrame (cr);
+            if (child != null) {
+                PropagateDraw (child, cr);
+            }
+            return false;
         }
 
-        protected override bool OnExposeEvent (Gdk.EventExpose evnt)
-        {
-            if (!IsDrawable) {
-                return false;
-            }
-
-            Cairo.Context cr = Gdk.CairoHelper.Create (evnt.Window);
-
-            try {
-                DrawFrame (cr, evnt.Area);
-                if (child != null) {
-                    PropagateExpose (child, evnt);
-                }
-                return false;
-            } finally {
-                CairoExtensions.DisposeContext (cr);
-            }
-        }
-
-        private void DrawFrame (Cairo.Context cr, Gdk.Rectangle clip)
+        private void DrawFrame (Cairo.Context cr)
         {
             int x = child_allocation.X - frame_width;
             int y = child_allocation.Y - frame_width;

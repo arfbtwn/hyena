@@ -36,7 +36,7 @@ using Hyena.Data.Gui;
 
 namespace Hyena.Data.Gui.Accessibility
 {
-    public partial class ListViewAccessible<T> : Atk.SelectionImplementor
+    public partial class ListViewAccessible<T> : Atk.ISelectionImplementor
     {
         public void ListViewAccessible_Selection ()
         {

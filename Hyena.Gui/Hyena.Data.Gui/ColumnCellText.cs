@@ -109,10 +109,9 @@ namespace Hyena.Data.Gui
             //context.Context.Rectangle (0, 0, cellWidth, cellHeight);
             //context.Context.Clip ();
             context.Context.MoveTo (Padding.Left, ((int)cellHeight - text_height) / 2);
-            Cairo.Color color = context.Theme.Colors.GetWidgetColor (
-                context.TextAsForeground ? GtkColorClass.Foreground : GtkColorClass.Text, context.State);
+            var color = CairoExtensions.GdkRGBAToCairoColor (context.Theme.Widget.StyleContext.GetColor (context.State));
             color.A = Alpha ?? (context.Opaque ? 1.0 : 0.5);
-            context.Context.Color = color;
+            context.Context.SetSourceColor (color);
 
             PangoCairoHelper.ShowLayout (context.Context, context.Layout);
             //context.Context.ResetClip ();

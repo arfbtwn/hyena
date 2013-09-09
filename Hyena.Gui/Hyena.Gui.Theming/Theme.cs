@@ -40,7 +40,6 @@ namespace Hyena.Gui.Theming
     {
         private static Cairo.Color black = new Cairo.Color (0, 0, 0);
         private Stack<ThemeContext> contexts = new Stack<ThemeContext> ();
-        private GtkColors colors;
 
         private Cairo.Color selection_fill;
         private Cairo.Color selection_stroke;
@@ -50,39 +49,37 @@ namespace Hyena.Gui.Theming
 
         private Cairo.Color text_mid;
 
-        public GtkColors Colors {
-            get { return colors; }
-        }
-
         public Widget Widget { get; private set; }
 
-        public Theme (Widget widget) : this (widget, new GtkColors ())
-        {
-        }
-
-        public Theme (Widget widget, GtkColors colors)
+        public Theme (Widget widget)
         {
             this.Widget = widget;
-            this.colors = colors;
-            this.colors.Refreshed += delegate { OnColorsRefreshed (); };
-            this.colors.Widget = widget;
+            if (widget.IsRealized) {
+                OnColorsRefreshed ();
+            }
+
+            widget.Realized += delegate { OnColorsRefreshed (); };
+            widget.StyleUpdated += delegate { OnColorsRefreshed (); };
 
             PushContext ();
         }
 
         protected virtual void OnColorsRefreshed ()
         {
-            selection_fill = colors.GetWidgetColor (GtkColorClass.Dark, StateType.Active);
-            selection_stroke = colors.GetWidgetColor (GtkColorClass.Background, StateType.Selected);
+            selection_fill = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Active));
+            selection_fill = CairoExtensions.ColorShade (selection_fill, 0.8);
+            selection_stroke = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));
 
-            view_fill = colors.GetWidgetColor (GtkColorClass.Base, StateType.Normal);
+            Widget.StyleContext.Save ();
+            Widget.StyleContext.AddClass ("entry");
+            view_fill = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
+            var text_color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetColor (StateFlags.Normal));
+            Widget.StyleContext.Restore ();
+
             view_fill_transparent = view_fill;
             view_fill_transparent.A = 0;
 
-            text_mid = CairoExtensions.AlphaBlend (
-                colors.GetWidgetColor (GtkColorClass.Base, StateType.Normal),
-                colors.GetWidgetColor (GtkColorClass.Text, StateType.Normal),
-                0.5);
+            text_mid = CairoExtensions.AlphaBlend (view_fill, text_color, 0.5);
         }
 
 #region Drawing
@@ -110,9 +107,17 @@ namespace Hyena.Gui.Theming
 
         public void DrawFrameBackground (Cairo.Context cr, Gdk.Rectangle alloc, bool baseColor)
         {
-            DrawFrameBackground (cr, alloc,  baseColor
-                ? colors.GetWidgetColor (GtkColorClass.Base, StateType.Normal)
-                : colors.GetWidgetColor (GtkColorClass.Background, StateType.Normal));
+            Cairo.Color fill_color;
+            if (baseColor) {
+                Widget.StyleContext.Save ();
+                Widget.StyleContext.AddClass ("entry");
+                fill_color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
+                Widget.StyleContext.Restore ();
+            } else {
+                fill_color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
+            }
+
+            DrawFrameBackground (cr, alloc, fill_color);
         }
 
         public void DrawFrameBackground (Cairo.Context cr, Gdk.Rectangle alloc, Cairo.Color color)
@@ -137,9 +142,16 @@ namespace Hyena.Gui.Theming
 
         public void DrawListBackground (Cairo.Context cr, Gdk.Rectangle alloc, bool baseColor)
         {
-            DrawListBackground (cr, alloc,  baseColor
-                ? colors.GetWidgetColor (GtkColorClass.Base, StateType.Normal)
-                : colors.GetWidgetColor (GtkColorClass.Background, StateType.Normal));
+            Cairo.Color fill_color;
+            if (baseColor) {
+                Widget.StyleContext.Save ();
+                Widget.StyleContext.AddClass ("entry");
+                fill_color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
+                Widget.StyleContext.Restore ();
+            } else {
+                fill_color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
+            }
+            DrawListBackground (cr, alloc, fill_color);
         }
 
         public abstract void DrawListBackground (Cairo.Context cr, Gdk.Rectangle alloc, Cairo.Color color);
@@ -154,7 +166,8 @@ namespace Hyena.Gui.Theming
 
         public void DrawColumnHighlight (Cairo.Context cr, Gdk.Rectangle alloc)
         {
-            DrawColumnHighlight (cr, alloc, colors.GetWidgetColor (GtkColorClass.Background, StateType.Selected));
+            Cairo.Color color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));
+            DrawColumnHighlight (cr, alloc, color);
         }
 
         public abstract void DrawColumnHighlight (Cairo.Context cr, Gdk.Rectangle alloc, Cairo.Color color);
@@ -166,8 +179,8 @@ namespace Hyena.Gui.Theming
 
         public void DrawRowSelection (Cairo.Context cr, int x, int y, int width, int height, bool filled)
         {
-            DrawRowSelection (cr, x, y, width, height, filled, true,
-                colors.GetWidgetColor (GtkColorClass.Background, StateType.Selected), CairoCorners.All);
+            Cairo.Color color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));
+            DrawRowSelection (cr, x, y, width, height, filled, true, color, CairoCorners.All);
         }
 
         public void DrawRowSelection (Cairo.Context cr, int x, int y, int width, int height,
@@ -178,7 +191,8 @@ namespace Hyena.Gui.Theming
 
         public void DrawRowCursor (Cairo.Context cr, int x, int y, int width, int height)
         {
-            DrawRowCursor (cr, x, y, width, height, colors.GetWidgetColor (GtkColorClass.Background, StateType.Selected));
+            Cairo.Color color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));
+            DrawRowCursor (cr, x, y, width, height, color);
         }
 
         public void DrawRowCursor (Cairo.Context cr, int x, int y, int width, int height, Cairo.Color color)

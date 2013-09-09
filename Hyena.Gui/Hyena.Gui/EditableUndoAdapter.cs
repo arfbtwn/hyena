@@ -34,7 +34,7 @@ using Hyena;
 
 namespace Hyena.Gui
 {
-    public class EditableUndoAdapter<T> where T : Widget, Editable
+    public class EditableUndoAdapter<T> where T : Widget, IEditable
     {
         private T editable;
         private UndoManager undo_manager = new UndoManager ();
@@ -109,7 +109,7 @@ namespace Hyena.Gui
         [GLib.ConnectBefore]
         private void OnTextInserted (object o, TextInsertedArgs args)
         {
-            undo_manager.AddUndoAction (new EditableInsertAction (editable, args.Position, args.Text, args.Length));
+            undo_manager.AddUndoAction (new EditableInsertAction (editable, args.Position, args.NewText, args.NewTextLength));
         }
 
         private void OnPopulatePopup (object o, PopulatePopupArgs args)

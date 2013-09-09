@@ -353,7 +353,7 @@ namespace Hyena.Data.Gui
             menu.ShowAll ();
             menu.Popup (null, null, delegate (Menu popup, out int pos_x, out int pos_y, out bool push_in) {
                 int win_x, win_y;
-                GdkWindow.GetOrigin (out win_x, out win_y);
+                Window.GetOrigin (out win_x, out win_y);
 
                 pos_x = win_x + x;
                 pos_y = win_y + y;
@@ -579,10 +579,11 @@ namespace Hyena.Data.Gui
                 Add (label);
             }
 
-            protected override void OnStyleSet (Style previousStyle)
+            protected override void OnStyleUpdated ()
             {
-                base.OnStyleSet (previousStyle);
-                label.ModifyFg (StateType.Prelight, Style.Foreground (StateType.Selected));
+                base.OnStyleUpdated ();
+                Gdk.RGBA rgba = StyleContext.GetColor (StateFlags.Selected);
+                label.OverrideColor (StateFlags.Prelight, rgba);
             }
 
             protected override void OnActivated ()
@@ -616,10 +617,11 @@ namespace Hyena.Data.Gui
                 Add (label);
             }
 
-            protected override void OnStyleSet (Style previousStyle)
+            protected override void OnStyleUpdated ()
             {
-                base.OnStyleSet (previousStyle);
-                label.ModifyFg (StateType.Prelight, Style.Foreground (StateType.Selected));
+                base.OnStyleUpdated ();
+                Gdk.RGBA rgba = StyleContext.GetColor (StateFlags.Selected);
+                label.OverrideColor (StateFlags.Prelight, rgba);
             }
 
             protected override void OnActivated ()
