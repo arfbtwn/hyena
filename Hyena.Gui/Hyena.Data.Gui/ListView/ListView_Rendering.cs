@@ -265,28 +265,20 @@ namespace Hyena.Data.Gui
 
 #region List Rendering
 
-        void RenderDarkBackgroundInSortedColumn ()
-        {
-            if (pressed_column_is_dragging && pressed_column_index == sort_column_index) {
-                return;
-            }
-
-            CachedColumn col = column_cache [sort_column_index];
-            Theme.DrawRowRule (cairo_context,
-                               list_rendering_alloc.X + col.X1 - HadjustmentValue,
-                               header_rendering_alloc.Bottom + Theme.BorderWidth,
-                               col.Width,
-                               list_rendering_alloc.Height + Theme.InnerBorderWidth * 2);
-        }
-
         private void PaintList (Rectangle clip)
         {
             if (ChildSize.Height <= 0) {
                 return;
             }
 
-            if (sort_column_index != -1) {
-                RenderDarkBackgroundInSortedColumn ();
+            // TODO factor this out?
+            // Render the sort effect to the GdkWindow.
+            if (sort_column_index != -1 && (!pressed_column_is_dragging || pressed_column_index != sort_column_index)) {
+                CachedColumn col = column_cache[sort_column_index];
+                Theme.DrawRowRule (cairo_context,
+                    list_rendering_alloc.X + col.X1 - HadjustmentValue,
+                    header_rendering_alloc.Bottom + Theme.BorderWidth,
+                    col.Width, list_rendering_alloc.Height + Theme.InnerBorderWidth * 2);
             }
 
             clip.Intersect (list_rendering_alloc);
