@@ -128,7 +128,9 @@ namespace Hyena.Data.Gui
 
             // FIXME: legacy list foo
             if (ViewLayout == null) {
-                OnMeasure ();
+                if (OnMeasure ()) {
+                    QueueResize ();
+                }
             }
             // treview style
             StyleContext.Save ();
@@ -635,17 +637,21 @@ namespace Hyena.Data.Gui
                 : new Gdk.Size (0, ColumnCellText.ComputeRowHeight (this));
         }
 
-        private void OnMeasure ()
+        private bool OnMeasure ()
         {
             if (!measure_pending) {
-                return;
+                return false;
             }
 
             measure_pending = false;
 
             header_height = 0;
+
+            var old_child_size = child_size;
             child_size = OnMeasureChild ();
             UpdateAdjustments ();
+
+            return old_child_size != child_size;
         }
 
 #endregion
