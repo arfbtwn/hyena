@@ -72,6 +72,7 @@ namespace Hyena.Data.Gui
                 EventMask.KeyReleaseMask |
                 EventMask.ButtonPressMask |
                 EventMask.ButtonReleaseMask |
+                EventMask.ScrollMask |
                 EventMask.LeaveNotifyMask |
                 EventMask.ExposureMask);
 
