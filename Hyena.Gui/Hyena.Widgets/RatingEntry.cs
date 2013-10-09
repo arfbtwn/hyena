@@ -172,6 +172,7 @@ namespace Hyena.Widgets
                 Gdk.EventMask.KeyReleaseMask |
                 Gdk.EventMask.ButtonPressMask |
                 Gdk.EventMask.ButtonReleaseMask |
+                Gdk.EventMask.ScrollMask |
                 Gdk.EventMask.ExposureMask);
 
             Gdk.WindowAttributesType attributes_mask =
