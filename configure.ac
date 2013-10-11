@@ -62,7 +62,6 @@ dnl package checks, common for all configs
 PKG_CHECK_MODULES([GTKSHARP], [gtk-sharp-3.0])
 PKG_CHECK_MODULES([GLIBSHARP], [glib-sharp-3.0])
 
-AM_CONDITIONAL(GCONF_SCHEMAS_INSTALL, false)
 AM_CONDITIONAL(HYENA_PKG_CONFIG, true)
 
 dnl Check for nunit
