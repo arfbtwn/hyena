@@ -37,7 +37,6 @@ namespace Hyena
         public static readonly bool IsWindows;
         public static readonly bool IsLinux;
         public static readonly bool IsUnix;
-        public static readonly bool IsMeeGo;
 
         public static readonly string PosixSystemName;
         public static readonly string SystemName;
@@ -89,8 +88,6 @@ namespace Hyena
             }
 
             SystemName = PosixSystemName;
-
-            IsMeeGo = System.IO.File.Exists ("/etc/meego-release");
         }
     }
 }
