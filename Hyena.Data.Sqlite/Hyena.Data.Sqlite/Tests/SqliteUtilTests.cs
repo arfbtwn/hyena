@@ -51,7 +51,7 @@ namespace Hyena.Data.Sqlite.Tests
         {
             // See Hyena.StringUtil.Tests for full tests. This just checks that
             // the collation function is actually being used.
-            CollationKeyTest ("", new byte[] {1, 1, 1, 1, 0});
+            CollationKeyTest (" ", new byte[] {7, 2, 1, 1, 1, 1, 0});
             CollationKeyTest ("\u0104", new byte[] {14, 2, 1, 27, 1, 1, 1, 0});
         }
     }

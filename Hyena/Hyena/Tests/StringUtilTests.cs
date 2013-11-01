@@ -341,9 +341,9 @@ href=http://lkjdflkjdflkjj>baz foo< /a> bar"));
         }
 
         [Test]
-        public void TestEmpty ()
+        public void TestSpace ()
         {
-            AssertSortKey ("", new byte[] {1, 1, 1, 1, 0});
+            AssertSortKey (" ", new byte[] {7, 2, 1, 1, 1, 1, 0});
         }
 
         [Test]
