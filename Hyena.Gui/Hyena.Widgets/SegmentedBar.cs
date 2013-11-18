@@ -323,7 +323,7 @@ namespace Hyena.Widgets
             }
 
             if (reflect) {
-                CairoExtensions.PushGroup (cr);
+                cr.PushGroup ();
             }
 
             cr.Operator = Operator.Over;
@@ -364,7 +364,7 @@ namespace Hyena.Widgets
 
                     cr.Restore ();
 
-                    CairoExtensions.PopGroupToSource (cr);
+                    cr.PopGroupToSource ();
                     cr.Paint ();
                 }
 
@@ -507,7 +507,7 @@ namespace Hyena.Widgets
                 cr.MoveTo (x, 0);
                 text_color.A = 0.9;
                 cr.SetSourceColor (text_color);
-                PangoCairoHelper.ShowLayout (cr, layout);
+                Pango.CairoHelper.ShowLayout (cr, layout);
                 cr.Fill ();
 
                 layout = CreateAdaptLayout (layout, true, false);
@@ -516,7 +516,7 @@ namespace Hyena.Widgets
                 cr.MoveTo (x, lh);
                 text_color.A = 0.75;
                 cr.SetSourceColor (text_color);
-                PangoCairoHelper.ShowLayout (cr, layout);
+                Pango.CairoHelper.ShowLayout (cr, layout);
                 cr.Fill ();
 
                 x += segment.LayoutWidth + segment_label_spacing;

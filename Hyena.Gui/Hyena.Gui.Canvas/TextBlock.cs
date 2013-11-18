@@ -103,7 +103,7 @@ namespace Hyena.Gui.Canvas
             layout.Width = wrap != TextWrap.None || forceWidth ? (int)(Pango.Scale.PangoScale * width) : -1;
             layout.Wrap = GetPangoWrapMode (wrap);
             if (height != null && wrap != TextWrap.None) {
-                layout.SetHeight ((int)(Pango.Scale.PangoScale * height.Value));
+                layout.Height = (int)(Pango.Scale.PangoScale * height.Value);
             }
             font_desc.Weight = GetPangoFontWeight (FontWeight);
             layout.SingleParagraphMode = wrap == TextWrap.None;
@@ -206,9 +206,9 @@ namespace Hyena.Gui.Canvas
               // FIXME windows; working around some unknown issue with ShowLayout; bgo#644311
 
               cr.Antialias = Cairo.Antialias.None;
-              PangoCairoHelper.LayoutPath (cr, layout, true);
+              Pango.CairoHelper.LayoutPath (cr, layout);
             } else {
-              PangoCairoHelper.ShowLayout (cr, layout);
+              Pango.CairoHelper.ShowLayout (cr, layout);
             }
 
             TooltipMarkup = layout.IsEllipsized ? last_formatted_text : null;

@@ -50,13 +50,13 @@ namespace Hyena.Gui
     {
         public static Pango.Layout CreateLayout (Gtk.Widget widget, Cairo.Context cairo_context)
         {
-            Pango.Layout layout = PangoCairoHelper.CreateLayout (cairo_context);
+            Pango.Layout layout = Pango.CairoHelper.CreateLayout (cairo_context);
             layout.FontDescription = widget.PangoContext.FontDescription;
 
             double resolution = widget.Screen.Resolution;
             if (resolution != -1) {
-                Pango.Context context = PangoCairoHelper.LayoutGetContext (layout);
-                PangoCairoHelper.ContextSetResolution (context, resolution);
+                Pango.Context context = layout.Context;
+                Pango.CairoHelper.ContextSetResolution (context, resolution);
                 context.Dispose ();
             }
 
@@ -327,81 +327,6 @@ namespace Hyena.Gui
         {
             ((IDisposable)cr.GetTarget ()).Dispose ();
             ((IDisposable)cr).Dispose ();
-        }
-
-        private struct CairoInteropCall
-        {
-            public string Name;
-            public MethodInfo ManagedMethod;
-            public bool CallNative;
-
-            public CairoInteropCall (string name)
-            {
-                Name = name;
-                ManagedMethod = null;
-                CallNative = false;
-            }
-        }
-
-        private static bool CallCairoMethod (Cairo.Context cr, ref CairoInteropCall call)
-        {
-            if (call.ManagedMethod == null && !call.CallNative) {
-                MemberInfo [] members = typeof (Cairo.Context).GetMember (call.Name, MemberTypes.Method,
-                    BindingFlags.InvokeMethod | BindingFlags.Instance | BindingFlags.Public);
-
-                if (members != null && members.Length > 0 && members[0] is MethodInfo) {
-                    call.ManagedMethod = (MethodInfo)members[0];
-                } else {
-                    call.CallNative = true;
-                }
-            }
-
-            if (call.ManagedMethod != null) {
-                call.ManagedMethod.Invoke (cr, null);
-                return true;
-            }
-
-            return false;
-        }
-
-        private static bool native_push_pop_exists = true;
-
-        [DllImport ("libcairo-2.dll")]
-        private static extern void cairo_push_group (IntPtr ptr);
-        private static CairoInteropCall cairo_push_group_call = new CairoInteropCall ("PushGroup");
-
-        public static void PushGroup (Cairo.Context cr)
-        {
-            if (!native_push_pop_exists) {
-                return;
-            }
-
-            try {
-                if (!CallCairoMethod (cr, ref cairo_push_group_call)) {
-                    cairo_push_group (cr.Handle);
-                }
-            } catch {
-                native_push_pop_exists = false;
-            }
-        }
-
-        [DllImport ("libcairo-2.dll")]
-        private static extern void cairo_pop_group_to_source (IntPtr ptr);
-        private static CairoInteropCall cairo_pop_group_to_source_call = new CairoInteropCall ("PopGroupToSource");
-
-        public static void PopGroupToSource (Cairo.Context cr)
-        {
-            if (!native_push_pop_exists) {
-                return;
-            }
-
-            try {
-                if (!CallCairoMethod (cr, ref cairo_pop_group_to_source_call)) {
-                    cairo_pop_group_to_source (cr.Handle);
-                }
-            } catch (EntryPointNotFoundException) {
-                native_push_pop_exists = false;
-            }
         }
     }
 }

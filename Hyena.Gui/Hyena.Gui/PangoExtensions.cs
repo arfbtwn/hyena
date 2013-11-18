@@ -47,22 +47,6 @@ namespace Hyena.Gui
             }
         }
 
-        [DllImport("libpango-1.0-0.dll")]
-        static extern int pango_layout_get_height(IntPtr raw);
-        public static int GetHeight (this Pango.Layout layout)
-        {
-            int raw_ret = pango_layout_get_height(layout.Handle);
-            int ret = raw_ret;
-            return ret;
-        }
-
-        [DllImport("libpango-1.0-0.dll")]
-        static extern void pango_layout_set_height(IntPtr raw, int height);
-        public static void SetHeight (this Pango.Layout layout, int height)
-        {
-            pango_layout_set_height (layout.Handle, height);
-        }
-
         public static string FormatEscaped (this string format, params object [] args)
         {
             return String.Format (format, args.Select (a => a == null ? "" : GLib.Markup.EscapeText (a.ToString ())).ToArray ());

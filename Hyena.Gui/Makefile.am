@@ -93,7 +93,6 @@ SOURCES =  \
 	Hyena.Gui/EditableUndoAdapter.cs \
 	Hyena.Gui/GtkUtilities.cs \
 	Hyena.Gui/HyenaActionGroup.cs \
-	Hyena.Gui/PangoCairoHelper.cs \
 	Hyena.Gui/PangoExtensions.cs \
 	Hyena.Gui/PixbufImageSurface.cs \
 	Hyena.Gui/RatingRenderer.cs \

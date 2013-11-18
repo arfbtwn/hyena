@@ -113,7 +113,7 @@ namespace Hyena.Data.Gui
             color.A = Alpha ?? (context.Opaque ? 1.0 : 0.5);
             context.Context.SetSourceColor (color);
 
-            PangoCairoHelper.ShowLayout (context.Context, context.Layout);
+            Pango.CairoHelper.ShowLayout (context.Context, context.Layout);
             //context.Context.ResetClip ();
         }
 

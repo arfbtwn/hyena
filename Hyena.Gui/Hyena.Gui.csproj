@@ -111,7 +111,6 @@
     <Compile Include="Hyena.Gui.Theming\ThemeEngine.cs" />
     <Compile Include="Hyena.Gui.Theming\GtkTheme.cs" />
     <Compile Include="Hyena.Data.Gui\ListView\ListView_DragAndDrop.cs" />
-    <Compile Include="Hyena.Gui\PangoCairoHelper.cs" />
     <Compile Include="Hyena.Widgets\AnimatedBox.cs" />
     <Compile Include="Hyena.Widgets\AnimatedHBox.cs" />
     <Compile Include="Hyena.Widgets\AnimatedVBox.cs" />

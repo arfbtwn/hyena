@@ -46,46 +46,5 @@ namespace Hyena.Gui
 
             return false;
         }
-
-        [DllImport ("libgdk-win32-2.0-0.dll")]
-        private static extern void gdk_property_change (IntPtr window, IntPtr property, IntPtr type,
-            int format, int mode, uint [] data, int nelements);
-
-        [DllImport ("libgdk-win32-2.0-0.dll")]
-        private static extern void gdk_property_change (IntPtr window, IntPtr property, IntPtr type,
-            int format, int mode, byte [] data, int nelements);
-
-        public static void ChangeProperty (Gdk.Window win, Atom property, Atom type, PropMode mode, uint [] data)
-        {
-            gdk_property_change (win.Handle, property.Handle, type.Handle, 32, (int)mode,  data, data.Length * 4);
-        }
-
-        public static void ChangeProperty (Gdk.Window win, Atom property, Atom type, PropMode mode, byte [] data)
-        {
-            gdk_property_change (win.Handle, property.Handle, type.Handle, 8, (int)mode,  data, data.Length);
-        }
-
-        [DllImport ("libgdk-win32-2.0-0.dll")]
-        private static extern bool gdk_x11_screen_supports_net_wm_hint (IntPtr screen, IntPtr property);
-
-        public static bool SupportsHint (Screen screen, string name)
-        {
-            try {
-                Atom atom = Atom.Intern (name, false);
-                return gdk_x11_screen_supports_net_wm_hint (screen.Handle, atom.Handle);
-            } catch {
-                return false;
-            }
-        }
-
-        public static void SetWinOpacity (Gtk.Window win, double opacity)
-        {
-            CompositeUtils.ChangeProperty (win.Window,
-                Atom.Intern ("_NET_WM_WINDOW_OPACITY", false),
-                Atom.Intern ("CARDINAL", false),
-                PropMode.Replace,
-                new uint [] { (uint) (0xffffffff * opacity) }
-            );
-        }
     }
 }
