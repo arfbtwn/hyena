@@ -86,6 +86,12 @@ namespace Hyena.Widgets
         public Pattern FillPattern {
             get { return fill_pattern; }
             set {
+                if (fill_pattern == value) {
+                    return;
+                }
+                if (fill_pattern != null) {
+                    fill_pattern.Dispose ();
+                }
                 fill_pattern = value;
                 QueueDraw ();
             }
