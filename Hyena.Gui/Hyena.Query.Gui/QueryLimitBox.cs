@@ -58,7 +58,7 @@ namespace Hyena.Query.Gui
             enabled_checkbox = new CheckButton (Catalog.GetString ("_Limit to"));
             enabled_checkbox.Toggled += OnEnabledToggled;
 
-            count_spin = new SpinButton (0, Double.MaxValue, 1);
+            count_spin = new SpinButton (0, int.MaxValue, 1);
             count_spin.Numeric = true;
             count_spin.Digits = 0;
             count_spin.Value = 25;
