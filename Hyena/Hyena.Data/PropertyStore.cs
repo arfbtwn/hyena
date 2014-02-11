@@ -97,7 +97,7 @@ namespace Hyena.Data
             bool raise = false;
             object old_value = null;
             lock(this) {
-                if(object_store.ContainsKey(name)) {
+                if(object_store != null && object_store.ContainsKey(name)) {
                     old_value = object_store[name];
                     object_store.Remove(name);
                     raise = true;
