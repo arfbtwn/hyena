@@ -442,7 +442,7 @@ namespace Hyena.Data.Sqlite
                             command.ApplyValues (args);
                         }
 
-                        command.Execute (this, connection);
+                        command.Execute (connection);
                     }
 
                     lock (command_queue) {
