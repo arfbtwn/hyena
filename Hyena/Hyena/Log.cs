@@ -426,7 +426,11 @@ namespace Hyena
                 }
             }
 
-            Log.Warning (message ?? "Caught an exception", builder.ToString (), false);
+            if (message != null) {
+                Log.Warning (message, builder.ToString (), false);
+            } else {
+                Log.Error ("Caught an exception", builder.ToString (), false);
+            }
         }
 
         #endregion
