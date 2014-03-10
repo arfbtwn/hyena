@@ -79,7 +79,7 @@ namespace Hyena.Data.Sqlite
             ApplyValues (param_values);
         }
 
-        internal void Execute (HyenaSqliteConnection hconnection, Connection connection)
+        internal void Execute (Connection connection)
         {
             if (finished) {
                 throw new Exception ("Command is already set to finished; result needs to be claimed before command can be rerun");
