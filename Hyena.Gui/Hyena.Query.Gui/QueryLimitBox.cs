@@ -28,12 +28,10 @@
 //
 
 using System;
-using System.Text;
 
 using Mono.Unix;
 using Gtk;
 
-using Hyena;
 using Hyena.Query;
 
 namespace Hyena.Query.Gui
@@ -58,7 +56,10 @@ namespace Hyena.Query.Gui
             enabled_checkbox = new CheckButton (Catalog.GetString ("_Limit to"));
             enabled_checkbox.Toggled += OnEnabledToggled;
 
-            count_spin = new SpinButton (0, Double.MaxValue, 1);
+            // workaround for bgo#727294, we doubt anyway that it's very useful to have a max higher than 2147483647
+            const double max = int.MaxValue;
+
+            count_spin = new SpinButton (0, max, 1);
             count_spin.Numeric = true;
             count_spin.Digits = 0;
             count_spin.Value = 25;
