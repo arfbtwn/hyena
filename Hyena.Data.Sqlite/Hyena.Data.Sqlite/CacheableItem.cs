@@ -1,7 +1,7 @@
+﻿//
+// CacheableItem.cs
 //
-// ICacheableItem.cs
-//
-// Author:
+// Authors:
 //   Gabriel Burt <gburt@novell.com>
 //
 // Copyright (C) 2008 Novell, Inc.
@@ -26,11 +26,20 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-namespace Hyena.Data
+using Hyena.Data;
+
+namespace Hyena.Data.Sqlite
 {
-    public interface ICacheableItem
+    public abstract class CacheableItem<T> : ICacheableItem
     {
-        object CacheEntryId { get; set; }
-        long CacheModelId { get; set; }
+        public object CacheEntryId {
+            get; set;
+        }
+
+        public long CacheModelId {
+            get; set;
+        }
+
+        public abstract long DbId { get; protected set;}
     }
 }
