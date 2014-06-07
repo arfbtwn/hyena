@@ -106,15 +106,8 @@ namespace Hyena.Data.Gui
                 return;
             }
 
-            //context.Context.Rectangle (0, 0, cellWidth, cellHeight);
-            //context.Context.Clip ();
-            context.Context.MoveTo (Padding.Left, ((int)cellHeight - text_height) / 2);
-            var color = CairoExtensions.GdkRGBAToCairoColor (context.Theme.Widget.StyleContext.GetColor (context.State));
-            color.A = Alpha ?? (context.Opaque ? 1.0 : 0.5);
-            context.Context.SetSourceColor (color);
-
-            Pango.CairoHelper.ShowLayout (context.Context, context.Layout);
-            //context.Context.ResetClip ();
+            int y_pos = ((int)cellHeight - text_height) / 2;
+            context.Widget.StyleContext.RenderLayout (context.Context, Padding.Left, y_pos, context.Layout);
         }
 
         public void UpdateText (CellContext context, double cellWidth)
