@@ -173,8 +173,6 @@ namespace Hyena.Data.Gui
             cr.Rectangle (clip.X, clip.Y, clip.Width, clip.Height);
             cr.Clip ();
 
-            Theme.DrawHeaderBackground (cr, header_rendering_alloc);
-
             Rectangle cell_area = new Rectangle ();
             cell_area.Y = header_rendering_alloc.Y;
             cell_area.Height = header_rendering_alloc.Height;
@@ -183,8 +181,6 @@ namespace Hyena.Data.Gui
             cell_context.Opaque = true;
             cell_context.TextAsForeground = true;
 
-            bool have_drawn_separator = false;
-
             for (int ci = 0; ci < column_cache.Length; ci++) {
                 if (pressed_column_is_dragging && pressed_column_index == ci) {
                     continue;
@@ -192,25 +188,54 @@ namespace Hyena.Data.Gui
 
                 cell_area.X = column_cache[ci].X1 + Theme.TotalBorderWidth + header_rendering_alloc.X - HadjustmentValue;
                 cell_area.Width = column_cache[ci].Width;
-                PaintHeaderCell (cr, cell_area, ci, false, ref have_drawn_separator);
+                PaintHeaderCell (cr, cell_area, ci, false);
             }
 
             if (pressed_column_is_dragging && pressed_column_index >= 0) {
                 cell_area.X = pressed_column_x_drag - HadjustmentValue;
                 cell_area.Width = column_cache[pressed_column_index].Width;
-                PaintHeaderCell (cr, cell_area, pressed_column_index, true, ref have_drawn_separator);
+                PaintHeaderCell (cr, cell_area, pressed_column_index, true);
             }
 
             cr.ResetClip ();
         }
 
-        private void PaintHeaderCell (Cairo.Context cr, Rectangle area, int ci, bool dragging, ref bool have_drawn_separator)
+        private void PaintHeaderCell (Cairo.Context cr, Rectangle area, int ci, bool dragging)
         {
             if (ci < 0 || column_cache.Length <= ci)
                 return;
 
+            var column_flags = new RegionFlags ();
+            if (ci == sort_column_index) {
+                column_flags |= RegionFlags.Sorted;
+            }
+            if (ci == 0) {
+                column_flags |= RegionFlags.First;
+            }
+            if (ci == (column_cache.Length - 1)) {
+                column_flags |= RegionFlags.Last;
+            }
+            // First column should be odd, but ci starts at 0
+            if ((ci + 1) % 2 == 0) {
+                column_flags |= RegionFlags.Even;
+            } else {
+                column_flags |= RegionFlags.Odd;
+            }
+
+            cell_context.Widget.StyleContext.Save ();
+            // RegionFlags.Last is not applied, see https://bugzilla.gnome.org/show_bug.cgi?id=731463
+            cell_context.Widget.StyleContext.AddRegion ("column-header", column_flags);
+            cell_context.Widget.StyleContext.AddClass ("button");
+            cell_context.Widget.StyleContext.RenderBackground (cr, area.X, area.Y, area.Width, area.Height);
+            cell_context.Widget.StyleContext.RenderFrame (cr, area.X, area.Y, area.Width, area.Height);
+
             if (ci == ActiveColumn && HasFocus && HeaderFocused) {
-                Theme.DrawColumnHeaderFocus (cr, area);
+                var border = cell_context.Widget.StyleContext.GetBorder (StyleContext.State);
+                var f_x = area.X + border.Left;
+                var f_y = area.Y + border.Top;
+                var f_width = area.Width - border.Left - border.Right;
+                var f_height = area.Height - border.Top - border.Bottom;
+                cell_context.Widget.StyleContext.RenderFocus (cr, f_x, f_y, f_width, f_height);
             }
 
             if (dragging) {
@@ -219,10 +244,10 @@ namespace Hyena.Data.Gui
 
                 Theme.DrawColumnHighlight (cr, area, dark_color);
 
-                StyleContext.Save ();
-                StyleContext.AddClass ("entry");
+                cell_context.Widget.StyleContext.Save ();
+                cell_context.Widget.StyleContext.AddClass ("entry");
                 Cairo.Color base_color = CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetBackgroundColor (StateFlags.Normal));
-                StyleContext.Restore ();
+                cell_context.Widget.StyleContext.Restore ();
 
                 Cairo.Color stroke_color = CairoExtensions.ColorShade (base_color, 0.0);
                 stroke_color.A = 0.3;
@@ -246,11 +271,7 @@ namespace Hyena.Data.Gui
                 cr.Restore ();
             }
 
-            if (!dragging && ci < column_cache.Length - 1 && (have_drawn_separator ||
-                column_cache[ci].MaxWidth != column_cache[ci].MinWidth)) {
-                have_drawn_separator = true;
-                Theme.DrawHeaderSeparator (cr, area, area.Right);
-            }
+            cell_context.Widget.StyleContext.Restore ();
         }
 
 #endregion
