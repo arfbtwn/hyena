@@ -58,6 +58,8 @@ namespace Hyena.Data.Gui
                 return;
             }
 
+            FontWeight = context.Widget.StyleContext.GetFont (context.State).Weight;
+
             if (!has_sort) {
                 base.Render (context, cellWidth, cellHeight);
                 return;
