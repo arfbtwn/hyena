@@ -137,6 +137,7 @@ namespace Hyena.Data.Gui
 
             StyleContext.AddClass ("view");
             StyleContext.RenderBackground (cr, 0, 0, Allocation.Width, Allocation.Height);
+            StyleContext.RenderFrame (cr, 0, 0, Allocation.Width, Allocation.Height);
             StyleContext.RemoveClass ("view");
 
             // FIXME: ViewLayout will never be null in the future but we'll need
@@ -155,8 +156,6 @@ namespace Hyena.Data.Gui
                     PaintView (cr, new Rect (0.0, 0.0, Allocation.Width, Allocation.Height));
                 }
             }
-
-            Theme.DrawFrameBorder (cr, Allocation);
 
             PaintDraggingColumn (cr);
             StyleContext.Restore ();
