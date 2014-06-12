@@ -125,7 +125,7 @@ namespace Hyena.Data.Gui
             set { BoundObject = value; }
         }
 
-        private int size = 13;
+        private int size = 16;
         public int Size {
             get { return size; }
             set { size = value; }
