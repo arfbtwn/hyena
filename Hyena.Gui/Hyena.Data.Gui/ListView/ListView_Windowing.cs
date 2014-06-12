@@ -57,7 +57,6 @@ namespace Hyena.Data.Gui
             HasWindow = false;
 
             Window = Parent.Window;
-            cell_context.Drawable = Window;
 
             WindowAttr attributes = new WindowAttr ();
             attributes.WindowType = Gdk.WindowType.Child;

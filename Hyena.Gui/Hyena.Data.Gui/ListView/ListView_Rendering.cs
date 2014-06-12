@@ -82,9 +82,6 @@ namespace Hyena.Data.Gui
 
             theme = Hyena.Gui.Theming.ThemeEngine.CreateTheme (this);
 
-            // Save the drawable so we can reuse it
-            var drawable = cell_context != null ? cell_context.Drawable : null;
-
             if (pango_layout != null) {
                 cell_context.FontDescription.Dispose ();
                 pango_layout.Dispose ();
@@ -96,7 +93,6 @@ namespace Hyena.Data.Gui
             cell_context = new CellContext ();
             cell_context.Theme = theme;
             cell_context.Widget = this;
-            cell_context.Drawable = drawable;
             SetDirection ();
         }
 
