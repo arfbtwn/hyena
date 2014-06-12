@@ -212,20 +212,20 @@ namespace Hyena.Data.Gui
                 column_flags |= RegionFlags.Odd;
             }
 
-            cell_context.Widget.StyleContext.Save ();
+            StyleContext.Save ();
             // RegionFlags.Last is not applied, see https://bugzilla.gnome.org/show_bug.cgi?id=731463
-            cell_context.Widget.StyleContext.AddRegion ("column-header", column_flags);
-            cell_context.Widget.StyleContext.AddClass ("button");
-            cell_context.Widget.StyleContext.RenderBackground (cr, area.X, area.Y, area.Width, area.Height);
-            cell_context.Widget.StyleContext.RenderFrame (cr, area.X, area.Y, area.Width, area.Height);
+            StyleContext.AddRegion ("column-header", column_flags);
+            StyleContext.AddClass ("button");
+            StyleContext.RenderBackground (cr, area.X, area.Y, area.Width, area.Height);
+            StyleContext.RenderFrame (cr, area.X, area.Y, area.Width, area.Height);
 
             if (ci == ActiveColumn && HasFocus && HeaderFocused) {
-                var border = cell_context.Widget.StyleContext.GetBorder (StyleContext.State);
+                var border = StyleContext.GetBorder (StyleContext.State);
                 var f_x = area.X + border.Left;
                 var f_y = area.Y + border.Top;
                 var f_width = area.Width - border.Left - border.Right;
                 var f_height = area.Height - border.Top - border.Bottom;
-                cell_context.Widget.StyleContext.RenderFocus (cr, f_x, f_y, f_width, f_height);
+                StyleContext.RenderFocus (cr, f_x, f_y, f_width, f_height);
             }
 
             if (dragging) {
@@ -234,10 +234,10 @@ namespace Hyena.Data.Gui
 
                 Theme.DrawColumnHighlight (cr, area, dark_color);
 
-                cell_context.Widget.StyleContext.Save ();
-                cell_context.Widget.StyleContext.AddClass ("entry");
+                StyleContext.Save ();
+                StyleContext.AddClass ("entry");
                 Cairo.Color base_color = CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetBackgroundColor (StateFlags.Normal));
-                cell_context.Widget.StyleContext.Restore ();
+                StyleContext.Restore ();
 
                 Cairo.Color stroke_color = CairoExtensions.ColorShade (base_color, 0.0);
                 stroke_color.A = 0.3;
@@ -261,7 +261,7 @@ namespace Hyena.Data.Gui
                 cr.Restore ();
             }
 
-            cell_context.Widget.StyleContext.Restore ();
+            StyleContext.Restore ();
         }
 
 #endregion

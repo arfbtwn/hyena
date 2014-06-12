@@ -178,13 +178,13 @@ namespace Hyena.Gui.Canvas
             }
 
             var cr = context.Context;
-            context.Theme.Widget.StyleContext.Save ();
+            context.StyleContext.Save ();
             if (context.TextAsForeground) {
-                context.Theme.Widget.StyleContext.AddClass ("button");
+                context.StyleContext.AddClass ("button");
             } else {
-                context.Theme.Widget.StyleContext.AddClass ("entry");
+                context.StyleContext.AddClass ("entry");
             }
-            Foreground = new Brush (context.Theme.Widget.StyleContext.GetColor (context.State));
+            Foreground = new Brush (context.StyleContext.GetColor (context.State));
 
             Brush foreground = Foreground;
             if (!foreground.IsValid) {
@@ -224,7 +224,7 @@ namespace Hyena.Gui.Canvas
             }
 
             cr.ResetClip ();
-            context.Theme.Widget.StyleContext.Restore ();
+            context.StyleContext.Restore ();
         }
 
         private Pango.Weight GetPangoFontWeight (FontWeight weight)

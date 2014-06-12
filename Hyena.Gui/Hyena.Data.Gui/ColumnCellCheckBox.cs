@@ -58,11 +58,11 @@ namespace Hyena.Data.Gui
             if (context.State == StateFlags.Normal && last_hover_bound == BoundObjectParent) {
                 context.State = StateFlags.Prelight;
             }
-            context.Widget.StyleContext.Save ();
-            context.Widget.StyleContext.AddClass ("check");
-            context.Widget.StyleContext.State = (Value ? StateFlags.Active : StateFlags.Normal);
-            context.Widget.StyleContext.RenderCheck (context.Context, x, y, Size, Size);
-            context.Widget.StyleContext.Restore ();
+            context.StyleContext.Save ();
+            context.StyleContext.AddClass ("check");
+            context.StyleContext.State = context.State | (Value ? StateFlags.Active : StateFlags.Normal);
+            context.StyleContext.RenderCheck (context.Context, x, y, Size, Size);
+            context.StyleContext.Restore ();
         }
 
         private object last_pressed_bound;

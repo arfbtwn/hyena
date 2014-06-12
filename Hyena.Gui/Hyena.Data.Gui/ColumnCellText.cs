@@ -107,7 +107,7 @@ namespace Hyena.Data.Gui
             }
 
             int y_pos = ((int)cellHeight - text_height) / 2;
-            context.Widget.StyleContext.RenderLayout (context.Context, Padding.Left, y_pos, context.Layout);
+            context.StyleContext.RenderLayout (context.Context, Padding.Left, y_pos, context.Layout);
         }
 
         public void UpdateText (CellContext context, double cellWidth)
