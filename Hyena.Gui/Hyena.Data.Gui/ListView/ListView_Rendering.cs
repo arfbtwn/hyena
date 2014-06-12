@@ -69,12 +69,7 @@ namespace Hyena.Data.Gui
             get { return theme; }
         }
 
-        // Using an auto-property here makes the build fail with mono 1.9.1 (bnc#396633)
-        private bool do_not_render_null_model;
-        public bool DoNotRenderNullModel {
-            get { return do_not_render_null_model; }
-            set { do_not_render_null_model = value; }
-        }
+        public bool DoNotRenderNullModel { get; set; }
 
         protected override void OnStyleUpdated ()
         {
