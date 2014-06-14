@@ -169,21 +169,6 @@ namespace Hyena.Gui.Theming
             cr.Stroke ();
         }
 
-        public override void DrawColumnHighlight (Cairo.Context cr, Gdk.Rectangle alloc, Cairo.Color color)
-        {
-            Cairo.Color light_color = CairoExtensions.ColorShade (color, 1.6);
-            Cairo.Color dark_color = CairoExtensions.ColorShade (color, 1.3);
-
-            using (var grad = new LinearGradient (alloc.X, alloc.Y, alloc.X, alloc.Bottom - 1)) {
-                grad.AddColorStop (0, light_color);
-                grad.AddColorStop (1, dark_color);
-
-                cr.SetSource (grad);
-                cr.Rectangle (alloc.X + 1.5, alloc.Y + 1.5, alloc.Width - 3, alloc.Height - 2);
-                cr.Fill ();
-            }
-        }
-
         public override void DrawRowCursor (Cairo.Context cr, int x, int y, int width, int height,
                                             Cairo.Color color, CairoCorners corners)
         {

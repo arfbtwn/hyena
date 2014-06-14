@@ -134,22 +134,6 @@ namespace Hyena.Gui.Theming
 
         public abstract void DrawFrameBorder (Cairo.Context cr, Gdk.Rectangle alloc);
 
-        public void DrawColumnHighlight (Cairo.Context cr, double cellWidth, double cellHeight)
-        {
-            Gdk.Rectangle alloc = new Gdk.Rectangle ();
-            alloc.Width = (int)cellWidth;
-            alloc.Height = (int)cellHeight;
-            DrawColumnHighlight (cr, alloc);
-        }
-
-        public void DrawColumnHighlight (Cairo.Context cr, Gdk.Rectangle alloc)
-        {
-            Cairo.Color color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));
-            DrawColumnHighlight (cr, alloc, color);
-        }
-
-        public abstract void DrawColumnHighlight (Cairo.Context cr, Gdk.Rectangle alloc, Cairo.Color color);
-
         public void DrawRowCursor (Cairo.Context cr, int x, int y, int width, int height)
         {
             Cairo.Color color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));

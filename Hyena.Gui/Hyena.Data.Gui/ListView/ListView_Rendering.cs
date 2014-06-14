@@ -215,6 +215,10 @@ namespace Hyena.Data.Gui
             // RegionFlags.Last is not applied, see https://bugzilla.gnome.org/show_bug.cgi?id=731463
             StyleContext.AddRegion ("column-header", column_flags);
             StyleContext.AddClass ("button");
+            if (dragging) {
+                // This is not applied in Adwaita, see https://bugzilla.gnome.org/show_bug.cgi?id=731663
+                StyleContext.AddClass ("dnd");
+            }
             StyleContext.RenderBackground (cr, area.X, area.Y, area.Width, area.Height);
             StyleContext.RenderFrame (cr, area.X, area.Y, area.Width, area.Height);
 
@@ -225,28 +229,6 @@ namespace Hyena.Data.Gui
                 var f_width = area.Width - border.Left - border.Right;
                 var f_height = area.Height - border.Top - border.Bottom;
                 StyleContext.RenderFocus (cr, f_x, f_y, f_width, f_height);
-            }
-
-            if (dragging) {
-                Cairo.Color dark_color = CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetBackgroundColor (StateFlags.Normal));
-                dark_color = CairoExtensions.ColorShade (dark_color, 0.7);
-
-                Theme.DrawColumnHighlight (cr, area, dark_color);
-
-                StyleContext.Save ();
-                StyleContext.AddClass ("entry");
-                Cairo.Color base_color = CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetBackgroundColor (StateFlags.Normal));
-                StyleContext.Restore ();
-
-                Cairo.Color stroke_color = CairoExtensions.ColorShade (base_color, 0.0);
-                stroke_color.A = 0.3;
-
-                cr.SetSourceColor (stroke_color);
-                cr.MoveTo (area.X + 0.5, area.Y + 1.0);
-                cr.LineTo (area.X + 0.5, area.Bottom);
-                cr.MoveTo (area.Right - 0.5, area.Y + 1.0);
-                cr.LineTo (area.Right - 0.5, area.Bottom);
-                cr.Stroke ();
             }
 
             ColumnCell cell = column_cache[ci].Column.HeaderCell;
