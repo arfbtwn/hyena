@@ -123,13 +123,12 @@ namespace Hyena.Data.Gui
                     QueueResize ();
                 }
             }
-            // treview style
-            StyleContext.Save ();
 
+            // TreeView style
+            StyleContext.Save ();
             StyleContext.AddClass ("view");
             StyleContext.RenderBackground (cr, 0, 0, Allocation.Width, Allocation.Height);
             StyleContext.RenderFrame (cr, 0, 0, Allocation.Width, Allocation.Height);
-            StyleContext.RemoveClass ("view");
 
             // FIXME: ViewLayout will never be null in the future but we'll need
             // to deterministically render a header somehow...
