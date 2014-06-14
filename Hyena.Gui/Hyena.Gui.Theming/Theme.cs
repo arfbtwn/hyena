@@ -166,23 +166,6 @@ namespace Hyena.Gui.Theming
 
         public abstract void DrawColumnHighlight (Cairo.Context cr, Gdk.Rectangle alloc, Cairo.Color color);
 
-        public void DrawRowSelection (Cairo.Context cr, int x, int y, int width, int height)
-        {
-            DrawRowSelection (cr, x, y, width, height, true);
-        }
-
-        public void DrawRowSelection (Cairo.Context cr, int x, int y, int width, int height, bool filled)
-        {
-            Cairo.Color color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));
-            DrawRowSelection (cr, x, y, width, height, filled, true, color, CairoCorners.All);
-        }
-
-        public void DrawRowSelection (Cairo.Context cr, int x, int y, int width, int height,
-            bool filled, bool stroked, Cairo.Color color)
-        {
-            DrawRowSelection (cr, x, y, width, height, filled, stroked, color, CairoCorners.All);
-        }
-
         public void DrawRowCursor (Cairo.Context cr, int x, int y, int width, int height)
         {
             Cairo.Color color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));
@@ -195,9 +178,6 @@ namespace Hyena.Gui.Theming
         }
 
         public abstract void DrawRowCursor (Cairo.Context cr, int x, int y, int width, int height, Cairo.Color color, CairoCorners corners);
-
-        public abstract void DrawRowSelection (Cairo.Context cr, int x, int y, int width, int height,
-            bool filled, bool stroked, Cairo.Color color, CairoCorners corners);
 
         public abstract void DrawRowRule (Cairo.Context cr, int x, int y, int width, int height);
 

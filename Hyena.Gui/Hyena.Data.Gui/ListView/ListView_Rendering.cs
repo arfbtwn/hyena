@@ -352,25 +352,7 @@ namespace Hyena.Data.Gui
                     }
 
                     if (selection_height > 0) {
-
-                        StyleContext.AddClass ("cell");
-                        var bg_selected_color = StyleContext.GetBackgroundColor (StateFlags.Selected);
-
-                        if (bg_selected_color.Equals (StyleContext.GetBackgroundColor (StateFlags.Normal))) {
-                            // see https://bugs.launchpad.net/bugs/1211831
-                            Hyena.Log.Warning ("Buggy CSS theme: same background-color for .cell:selected and .cell");
-                            StyleContext.RemoveClass ("cell");
-                            bg_selected_color = StyleContext.GetBackgroundColor (StateFlags.Selected);
-                            StyleContext.AddClass ("cell");
-                        }
-                        Cairo.Color selection_color = CairoExtensions.GdkRGBAToCairoColor (bg_selected_color);
-
-                        if (!HasFocus || HeaderFocused)
-                            selection_color = CairoExtensions.ColorShade (selection_color, 1.1);
-
-                        Theme.DrawRowSelection (cr, list_rendering_alloc.X, selection_y, list_rendering_alloc.Width, selection_height,
-                                                true, true, selection_color, CairoCorners.All);
-                        StyleContext.RemoveClass ("cell");
+                        PaintRowSelection (cr, list_rendering_alloc.X, selection_y, list_rendering_alloc.Width, selection_height);
                         selection_height = 0;
                     }
 
@@ -384,8 +366,7 @@ namespace Hyena.Data.Gui
             PaintReorderLine (cr, last_row, single_list_alloc);
 
             if (selection_height > 0) {
-                Theme.DrawRowSelection (cr, list_rendering_alloc.X, selection_y,
-                    list_rendering_alloc.Width, selection_height);
+                PaintRowSelection (cr, list_rendering_alloc.X, selection_y, list_rendering_alloc.Width, selection_height);
             }
 
             if (Selection != null && Selection.Count > 1 &&
@@ -407,6 +388,21 @@ namespace Hyena.Data.Gui
             }
 
             cr.ResetClip ();
+        }
+
+        private void PaintRowSelection (Cairo.Context cr, int x, int y, int width, int height)
+        {
+            StyleContext.Save ();
+            StyleContext.AddClass ("cell");
+            StyleContext.State |= StateFlags.Selected;
+
+            if (HasFocus && !HeaderFocused) {
+                StyleContext.State |= StateFlags.Focused;
+            }
+
+            StyleContext.RenderBackground (cr, x, y, width, height);
+            StyleContext.RenderFrame (cr, x, y, width, height);
+            StyleContext.Restore ();
         }
 
         private void PaintReorderLine (Cairo.Context cr, int row_index, Rectangle single_list_alloc)
@@ -492,7 +488,7 @@ namespace Hyena.Data.Gui
             cr.Translate (area.X, area.Y);
             cell_context.Area = area;
             cell_context.Opaque = opaque;
-            cell_context.State = dragging ? StateFlags.Normal : state;
+            cell_context.State |= dragging ? StateFlags.Normal : state;
             cell.Render (cell_context, area.Width, area.Height);
             cr.Restore ();
 
@@ -559,27 +555,15 @@ namespace Hyena.Data.Gui
                 if (Selection != null && Selection.Contains (ViewLayout.GetModelIndex (layout_child))) {
                     selected_rows.Add (ViewLayout.GetModelIndex (layout_child));
 
-                    var selection_color = CairoExtensions.GdkRGBAToCairoColor (StyleContext.GetBackgroundColor (StateFlags.Selected));
-                    if (!HasFocus || HeaderFocused) {
-                        selection_color = CairoExtensions.ColorShade (selection_color, 1.1);
-                    }
+                    PaintRowSelection (cr, (int)child_allocation.X, (int)child_allocation.Y,
+                        (int)child_allocation.Width, (int)child_allocation.Height);
 
-                    Theme.DrawRowSelection (cr,
-                        (int)child_allocation.X, (int)child_allocation.Y,
-                        (int)child_allocation.Width, (int)child_allocation.Height,
-                        true, true, selection_color, CairoCorners.All);
-
-                    cell_context.State = StateFlags.Selected;
+                    cell_context.State = StyleContext.State | StateFlags.Selected;
                 } else {
-                    cell_context.State = StateFlags.Normal;
+                    cell_context.State = StyleContext.State;
                 }
 
-                //cr.Save ();
-                //cr.Translate (child_allocation.X, child_allocation.Y);
-                //cr.Rectangle (0, 0, child_allocation.Width, child_allocation.Height);
-                //cr.Clip ();
                 layout_child.Render (cell_context);
-                //cr.Restore ();
             }
 
             cr.ResetClip ();
