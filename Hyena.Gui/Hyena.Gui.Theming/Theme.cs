@@ -134,22 +134,6 @@ namespace Hyena.Gui.Theming
 
         public abstract void DrawFrameBorder (Cairo.Context cr, Gdk.Rectangle alloc);
 
-        public void DrawListBackground (Cairo.Context cr, Gdk.Rectangle alloc, bool baseColor)
-        {
-            Cairo.Color fill_color;
-            if (baseColor) {
-                Widget.StyleContext.Save ();
-                Widget.StyleContext.AddClass ("entry");
-                fill_color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
-                Widget.StyleContext.Restore ();
-            } else {
-                fill_color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
-            }
-            DrawListBackground (cr, alloc, fill_color);
-        }
-
-        public abstract void DrawListBackground (Cairo.Context cr, Gdk.Rectangle alloc, Cairo.Color color);
-
         public void DrawColumnHighlight (Cairo.Context cr, double cellWidth, double cellHeight)
         {
             Gdk.Rectangle alloc = new Gdk.Rectangle ();

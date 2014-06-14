@@ -89,8 +89,11 @@ namespace Hyena.Gui.Theming
                     Height = Allocation.Height
                 };
 
-                theme.DrawListBackground (cr, alloc, true);
+                StyleContext.Save ();
+                StyleContext.AddClass ("view");
+                StyleContext.RenderBackground (cr, alloc.X, alloc.Y, alloc.Width, alloc.Height);
                 theme.DrawFrameBorder (cr, alloc);
+                StyleContext.Restore ();
                 return true;
             }
         }

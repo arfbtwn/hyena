@@ -184,14 +184,6 @@ namespace Hyena.Gui.Theming
             }
         }
 
-        public override void DrawListBackground (Context cr, Gdk.Rectangle alloc, Color color)
-        {
-            color.A = Context.FillAlpha;
-            cr.SetSourceColor (color);
-            cr.Rectangle (alloc.X, alloc.Y, alloc.Width, alloc.Height);
-            cr.Fill ();
-        }
-
         public override void DrawRowCursor (Cairo.Context cr, int x, int y, int width, int height,
                                             Cairo.Color color, CairoCorners corners)
         {
