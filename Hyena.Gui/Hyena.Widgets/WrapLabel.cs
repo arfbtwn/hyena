@@ -108,8 +108,10 @@ namespace Hyena.Widgets
                 layout.GetPixelSize (out lw, out lh);
                 int y = (Allocation.Height - lh) / 2;
 
-                StyleContext.State = StateFlags;
+                StyleContext.Save ();
+                StyleContext.State |= StateFlags;
                 StyleContext.RenderLayout (cr, 0, y, layout);
+                StyleContext.Restore ();
             }
 
             return true;
