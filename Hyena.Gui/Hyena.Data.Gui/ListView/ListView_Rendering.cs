@@ -277,12 +277,13 @@ namespace Hyena.Data.Gui
             // Render the sort effect to the GdkWindow.
             if (sort_column_index != -1 && (!pressed_column_is_dragging || pressed_column_index != sort_column_index)) {
                 CachedColumn col = column_cache[sort_column_index];
+                StyleContext.Save ();
                 StyleContext.AddRegion ("column", RegionFlags.Sorted);
                 StyleContext.RenderBackground (cr,
                     list_rendering_alloc.X + col.X1 - HadjustmentValue,
                     header_rendering_alloc.Bottom + Theme.BorderWidth,
                     col.Width, list_rendering_alloc.Height + Theme.InnerBorderWidth * 2);
-                StyleContext.RemoveRegion ("column");
+                StyleContext.Restore ();
             }
 
             clip.Intersect (list_rendering_alloc);
@@ -322,14 +323,14 @@ namespace Hyena.Data.Gui
                         selected_focus_alloc = single_list_alloc;
                     }
                 } else {
+                    StyleContext.Save ();
                     StyleContext.AddClass ("cell");
                     if (rules_hint) { // TODO: check also gtk_widget_style_get(widget,"allow-rules",&allow_rules,NULL);
                         StyleContext.AddRegion ("row", ri % 2 != 0 ? RegionFlags.Odd : RegionFlags.Even);
                     }
                     StyleContext.RenderBackground (cr, single_list_alloc.X, single_list_alloc.Y,
                         single_list_alloc.Width, single_list_alloc.Height);
-                    StyleContext.RemoveRegion ("row");
-                    StyleContext.RemoveClass ("cell");
+                    StyleContext.Restore ();
 
                     PaintReorderLine (cr, ri, single_list_alloc);
 
