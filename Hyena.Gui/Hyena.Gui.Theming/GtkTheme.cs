@@ -34,7 +34,6 @@ namespace Hyena.Gui.Theming
 {
     public class GtkTheme : Theme
     {
-        private Cairo.Color rule_color;
         private Cairo.Color border_color;
 
         public GtkTheme (Widget widget) : base (widget)
@@ -51,8 +50,6 @@ namespace Hyena.Gui.Theming
         protected override void OnColorsRefreshed ()
         {
             base.OnColorsRefreshed ();
-
-            rule_color = CairoExtensions.ColorShade (ViewFill, 0.95);
 
             // On Windows we use Normal b/c Active incorrectly returns black (at least on XP)
             // TODO: Check if this is still needed with GTK 3
@@ -185,13 +182,6 @@ namespace Hyena.Gui.Theming
             CairoExtensions.RoundedRectangle (cr, x + cr.LineWidth/2.0, y + cr.LineWidth/2.0,
                 width - cr.LineWidth, height - cr.LineWidth, Context.Radius, corners, true);
             cr.Stroke ();
-        }
-
-        public override void DrawRowRule (Cairo.Context cr, int x, int y, int width, int height)
-        {
-            cr.SetSourceColor (new Cairo.Color (rule_color.R, rule_color.G, rule_color.B, Context.FillAlpha));
-            cr.Rectangle (x, y, width, height);
-            cr.Fill ();
         }
     }
 }

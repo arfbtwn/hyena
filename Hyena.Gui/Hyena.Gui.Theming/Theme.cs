@@ -41,11 +41,7 @@ namespace Hyena.Gui.Theming
         private static Cairo.Color black = new Cairo.Color (0, 0, 0);
         private Stack<ThemeContext> contexts = new Stack<ThemeContext> ();
 
-        private Cairo.Color selection_fill;
         private Cairo.Color selection_stroke;
-
-        private Cairo.Color view_fill;
-        private Cairo.Color view_fill_transparent;
 
         private Cairo.Color text_mid;
 
@@ -66,18 +62,13 @@ namespace Hyena.Gui.Theming
 
         protected virtual void OnColorsRefreshed ()
         {
-            selection_fill = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Active));
-            selection_fill = CairoExtensions.ColorShade (selection_fill, 0.8);
             selection_stroke = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));
 
             Widget.StyleContext.Save ();
             Widget.StyleContext.AddClass ("entry");
-            view_fill = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
+            var view_fill = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
             var text_color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetColor (StateFlags.Normal));
             Widget.StyleContext.Restore ();
-
-            view_fill_transparent = view_fill;
-            view_fill_transparent.A = 0;
 
             text_mid = CairoExtensions.AlphaBlend (view_fill, text_color, 0.5);
         }
@@ -148,20 +139,6 @@ namespace Hyena.Gui.Theming
         }
 
         public abstract void DrawRowCursor (Cairo.Context cr, int x, int y, int width, int height, Cairo.Color color, CairoCorners corners);
-
-        public abstract void DrawRowRule (Cairo.Context cr, int x, int y, int width, int height);
-
-        public Cairo.Color ViewFill {
-            get { return view_fill; }
-        }
-
-        public Cairo.Color ViewFillTransparent {
-            get { return view_fill_transparent; }
-        }
-
-        public Cairo.Color SelectionFill {
-            get { return selection_fill; }
-        }
 
         public Cairo.Color SelectionStroke {
             get { return selection_stroke; }
