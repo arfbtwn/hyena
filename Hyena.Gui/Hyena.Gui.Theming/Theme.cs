@@ -134,6 +134,8 @@ namespace Hyena.Gui.Theming
 
         public abstract void DrawFrameBorder (Cairo.Context cr, Gdk.Rectangle alloc);
 
+        public abstract void DrawHighlightFrame (Cairo.Context cr, int x, int y, int width, int height);
+
         public void DrawRowCursor (Cairo.Context cr, int x, int y, int width, int height)
         {
             Cairo.Color color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));

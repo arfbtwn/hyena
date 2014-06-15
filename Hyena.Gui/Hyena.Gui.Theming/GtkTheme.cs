@@ -169,6 +169,14 @@ namespace Hyena.Gui.Theming
             cr.Stroke ();
         }
 
+        public override void DrawHighlightFrame (Cairo.Context cr, int x, int y, int width, int height)
+        {
+            cr.LineWidth = 1.0;
+            cr.SetSourceColor (SelectionStroke);
+            CairoExtensions.RoundedRectangle (cr, x + 0.5, y + 0.5, width - 1, height - 1, Context.Radius);
+            cr.Stroke ();
+        }
+
         public override void DrawRowCursor (Cairo.Context cr, int x, int y, int width, int height,
                                             Cairo.Color color, CairoCorners corners)
         {
