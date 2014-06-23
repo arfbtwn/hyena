@@ -55,12 +55,13 @@ namespace Hyena.Data.Gui
             int x = Xpad + ((cell_width - Size) / 2);
             int y = Ypad + ((cell_height - Size) / 2);
 
-            if (context.State.HasFlag (StateFlags.Normal) && last_hover_bound == BoundObjectParent) {
-                context.State |= StateFlags.Prelight;
-            }
             context.StyleContext.Save ();
             context.StyleContext.AddClass ("check");
-            context.StyleContext.State |= context.State | (Value ? StateFlags.Active : StateFlags.Normal);
+            if (!context.Selected && last_hover_bound == BoundObjectParent) {
+                context.StyleContext.State |= StateFlags.Prelight;
+            }
+            context.StyleContext.State |= (Value ? StateFlags.Active : StateFlags.Normal);
+            context.StyleContext.State |= context.State;
             context.StyleContext.RenderCheck (context.Context, x, y, Size, Size);
             context.StyleContext.Restore ();
         }

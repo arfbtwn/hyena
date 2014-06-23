@@ -81,11 +81,6 @@ namespace Hyena.Data.Gui
 
         public virtual void Render (CellContext context, double cellWidth, double cellHeight)
         {
-            Render (context, context.State, cellWidth, cellHeight);
-        }
-
-        public virtual void Render (CellContext context, Gtk.StateFlags state, double cellWidth, double cellHeight)
-        {
         }
 
         public bool Expand { get; set; }

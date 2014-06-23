@@ -237,7 +237,7 @@ namespace Hyena.Data.Gui
                 cr.Save ();
                 cr.Translate (area.X, area.Y);
                 cell_context.Area = area;
-                cell_context.State = StateFlags.Normal;
+                cell_context.Selected = false;
                 cell.Render (cell_context, area.Width, area.Height);
                 cr.Restore ();
             }
@@ -338,7 +338,7 @@ namespace Hyena.Data.Gui
                         selection_height = 0;
                     }
 
-                    PaintRow (cr, ri, single_list_alloc, StateFlags.Normal);
+                    PaintRow (cr, ri, single_list_alloc, false);
                 }
 
                 single_list_alloc.Y += single_list_alloc.Height;
@@ -366,7 +366,7 @@ namespace Hyena.Data.Gui
 
             foreach (int ri in selected_rows) {
                 single_list_alloc.Y = offset + ((ri - first_row) * single_list_alloc.Height);
-                PaintRow (cr, ri, single_list_alloc, StateFlags.Selected);
+                PaintRow (cr, ri, single_list_alloc, true);
             }
 
             cr.ResetClip ();
@@ -406,7 +406,7 @@ namespace Hyena.Data.Gui
             }
         }
 
-        private void PaintRow (Cairo.Context cr, int row_index, Rectangle area, StateFlags state)
+        private void PaintRow (Cairo.Context cr, int row_index, Rectangle area, bool selected)
         {
             if (column_cache == null) {
                 return;
@@ -431,19 +431,19 @@ namespace Hyena.Data.Gui
 
                 cell_area.Width = column_cache[ci].Width;
                 cell_area.X = column_cache[ci].X1 + area.X;
-                PaintCell (cr, item, ci, row_index, cell_area, opaque, bold, state, false);
+                PaintCell (cr, item, ci, row_index, cell_area, opaque, bold, selected, false);
             }
 
             if (pressed_column_is_dragging && pressed_column_index >= 0) {
                 cell_area.Width = column_cache[pressed_column_index].Width;
                 cell_area.X = pressed_column_x_drag + list_rendering_alloc.X -
                     list_interaction_alloc.X - HadjustmentValue;
-                PaintCell (cr, item, pressed_column_index, row_index, cell_area, opaque, bold, state, true);
+                PaintCell (cr, item, pressed_column_index, row_index, cell_area, opaque, bold, selected, true);
             }
         }
 
         private void PaintCell (Cairo.Context cr, object item, int column_index, int row_index, Rectangle area, bool opaque, bool bold,
-            StateFlags state, bool dragging)
+                                bool selected, bool dragging)
         {
             ColumnCell cell = column_cache[column_index].Column.GetCell (0);
             cell.Bind (item);
@@ -470,7 +470,7 @@ namespace Hyena.Data.Gui
             cr.Translate (area.X, area.Y);
             cell_context.Area = area;
             cell_context.Opaque = opaque;
-            cell_context.State |= dragging ? StateFlags.Normal : state;
+            cell_context.Selected = dragging ? false : selected;
             cell.Render (cell_context, area.Width, area.Height);
             cr.Restore ();
 
@@ -540,9 +540,9 @@ namespace Hyena.Data.Gui
                     PaintRowSelection (cr, (int)child_allocation.X, (int)child_allocation.Y,
                         (int)child_allocation.Width, (int)child_allocation.Height);
 
-                    cell_context.State = StyleContext.State | StateFlags.Selected;
+                    cell_context.Selected = true;
                 } else {
-                    cell_context.State = StyleContext.State;
+                    cell_context.Selected = false;
                 }
 
                 layout_child.Render (cell_context);

@@ -46,7 +46,10 @@ namespace Hyena.Data.Gui
         public Gtk.StyleContext StyleContext {
             get { return Widget.StyleContext; }
         }
-        public Gtk.StateFlags State { get; set; }
+        public bool Selected { get; set; }
+        public Gtk.StateFlags State {
+            get { return (Selected ? Gtk.StateFlags.Selected : Gtk.StateFlags.Normal); }
+        }
         public Theme Theme { get; set; }
         public Gdk.Rectangle Area { get; set; }
         public Gdk.Rectangle Clip { get; set; }
