@@ -63,8 +63,11 @@ namespace Hyena.Data.Gui
 
             renderer.Value = Value;
             bool is_hovering = hover_bound == BoundObjectParent && hover_bound != null;
-            renderer.Render (context.Context, area, CairoExtensions.GdkRGBAToCairoColor (context.StyleContext.GetColor (context.State)),
-                is_hovering, is_hovering, hover_value, 0.8, 0.45, 0.35);
+            context.StyleContext.Save ();
+            context.StyleContext.State |= context.State;
+            Cairo.Color color = CairoExtensions.GdkRGBAToCairoColor (context.StyleContext.GetColor (context.StyleContext.State));
+            renderer.Render (context.Context, area, color, is_hovering, is_hovering, hover_value, 0.8, 0.45, 0.35);
+            context.StyleContext.Restore ();
 
             // FIXME: Something is hosed in the view when computing cell dimensions
             // The cell width request is always smaller than the actual cell, so
