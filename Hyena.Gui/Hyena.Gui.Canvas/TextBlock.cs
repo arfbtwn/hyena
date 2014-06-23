@@ -179,12 +179,13 @@ namespace Hyena.Gui.Canvas
 
             var cr = context.Context;
             context.StyleContext.Save ();
+            context.StyleContext.State |= context.State;
             if (context.TextAsForeground) {
                 context.StyleContext.AddClass ("button");
             } else {
                 context.StyleContext.AddClass ("entry");
             }
-            Foreground = new Brush (context.StyleContext.GetColor (context.State));
+            Foreground = new Brush (context.StyleContext.GetColor (context.StyleContext.State));
 
             Brush foreground = Foreground;
             if (!foreground.IsValid) {
