@@ -354,7 +354,7 @@ namespace Hyena
 
         public static void Warning (Exception e)
         {
-            Exception (null, e);
+            Warning (null, e);
         }
 
         public static void Warning (string message, Exception e)
@@ -398,7 +398,7 @@ namespace Hyena
 
         public static void Error (Exception e)
         {
-            Exception (null, e);
+            Error (null, e);
         }
 
         public static void Error (string message, Exception e)
