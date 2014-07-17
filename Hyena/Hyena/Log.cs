@@ -354,12 +354,12 @@ namespace Hyena
 
         public static void Warning (Exception e)
         {
-            ExceptionImpl (null, e, false);
+            Exception (null, e);
         }
 
         public static void Warning (string message, Exception e)
         {
-            ExceptionImpl (message, e, false);
+            Exception (message, e, false);
         }
 
         public static void Warning (string message, bool showUser)
@@ -398,12 +398,12 @@ namespace Hyena
 
         public static void Error (Exception e)
         {
-            ExceptionImpl (null, e, true);
+            Exception (null, e);
         }
 
         public static void Error (string message, Exception e)
         {
-            ExceptionImpl (message, e, true);
+            Exception (message, e, true);
         }
 
         public static void ErrorFormat (string format, params object [] args)
@@ -432,10 +432,10 @@ namespace Hyena
         public static void Exception (string message, Exception e)
         {
             bool severe = String.IsNullOrEmpty (message);
-            ExceptionImpl (message, e, severe);
+            Exception (message, e, severe);
         }
 
-        private static void ExceptionImpl (string message, Exception e, bool severe)
+        private static void Exception (string message, Exception e, bool severe)
         {
             Stack<Exception> exception_chain = new Stack<Exception> ();
             StringBuilder builder = new StringBuilder ();
