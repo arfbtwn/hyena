@@ -339,7 +339,7 @@ namespace Hyena
 
         public static void Warning (string message)
         {
-            Warning (message, null);
+            Warning (message, (string)null);
         }
 
         public static void Warning (string message, string details)
@@ -350,6 +350,16 @@ namespace Hyena
         public static void Warning (string message, string details, bool showUser)
         {
             Commit (LogEntryType.Warning, message, details, showUser);
+        }
+
+        public static void Warning (Exception e)
+        {
+            ExceptionImpl (null, e, false);
+        }
+
+        public static void Warning (string message, Exception e)
+        {
+            ExceptionImpl (message, e, false);
         }
 
         public static void Warning (string message, bool showUser)
@@ -368,7 +378,7 @@ namespace Hyena
 
         public static void Error (string message)
         {
-            Error (message, null);
+            Error (message, (string)null);
         }
 
         public static void Error (string message, string details)
@@ -384,6 +394,16 @@ namespace Hyena
         public static void Error (string message, bool showUser)
         {
             Error (message, null, showUser);
+        }
+
+        public static void Error (Exception e)
+        {
+            ExceptionImpl (null, e, true);
+        }
+
+        public static void Error (string message, Exception e)
+        {
+            ExceptionImpl (message, e, true);
         }
 
         public static void ErrorFormat (string format, params object [] args)
@@ -402,12 +422,20 @@ namespace Hyena
             }
         }
 
+        [Obsolete ("Use Error(ex) or Warning(ex)")]
         public static void Exception (Exception e)
         {
             Exception (null, e);
         }
 
+        [Obsolete ("Use Error(msg,ex) or Warning(msg,ex)")]
         public static void Exception (string message, Exception e)
+        {
+            bool severe = String.IsNullOrEmpty (message);
+            ExceptionImpl (message, e, severe);
+        }
+
+        private static void ExceptionImpl (string message, Exception e, bool severe)
         {
             Stack<Exception> exception_chain = new Stack<Exception> ();
             StringBuilder builder = new StringBuilder ();
@@ -426,7 +454,7 @@ namespace Hyena
                 }
             }
 
-            if (message != null) {
+            if (!severe) {
                 Log.Warning (message, builder.ToString (), false);
             } else {
                 Log.Error ("Caught an exception", builder.ToString (), false);
