@@ -33,7 +33,11 @@ AC_ARG_ENABLE(release,
 AM_CONDITIONAL(ENABLE_RELEASE, test x$enable_release = xyes)
 if test "x$enable_release" = "xyes" ; then
 	CONFIG_REQUESTED="yes"
+else
+	GMCS_FLAGS="-warnaserror"
 fi
+AC_SUBST(GMCS_FLAGS)
+
 AC_ARG_ENABLE(windows,
 	AC_HELP_STRING([--enable-windows],
 		[Use 'WINDOWS' Configuration [default=NO]]),

@@ -418,7 +418,7 @@ namespace Hyena
         public static void DebugException (Exception e)
         {
             if (Debugging) {
-                Exception (e);
+                Exception (null, e, false);
             }
         }
 

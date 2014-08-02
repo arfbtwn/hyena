@@ -62,7 +62,7 @@ namespace Hyena.Downloader
                 try {
                     handler (this);
                 } catch (Exception e) {
-                    Log.Exception (String.Format ("HttpStringDownloader.Finished handler ({0})", Uri), e);
+                    Log.Error (String.Format ("HttpStringDownloader.Finished handler ({0})", Uri), e);
                 }
             }
 

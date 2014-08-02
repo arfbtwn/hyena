@@ -301,7 +301,7 @@ namespace Hyena.Data.Sqlite
                     key.SetValue (target, Insert (target));
                 }
             } catch (Exception e) {
-                Hyena.Log.Exception (e);
+                Log.Error (e);
                 Hyena.Log.DebugFormat ("type of key value: {0}", key.GetRawValue (target).GetType ());
                 throw;
             }

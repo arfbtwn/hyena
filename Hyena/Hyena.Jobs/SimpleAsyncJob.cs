@@ -70,7 +70,7 @@ namespace Hyena.Jobs
                 Run ();
             } catch (ThreadAbortException) {
             } catch (Exception e) {
-                Log.Exception (e);
+                Log.Error (e);
             }
         }
 

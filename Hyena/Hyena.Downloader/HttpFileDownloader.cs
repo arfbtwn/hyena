@@ -71,7 +71,7 @@ namespace Hyena.Downloader
                     file_stream = null;
                     OnFileFinished ();
                 } catch (Exception e) {
-                    Log.Exception (String.Format ("HttpFileDownloader.OnFinished ({0})", Uri), e);
+                    Log.Error (String.Format ("HttpFileDownloader.OnFinished ({0})", Uri), e);
                 }
             }
 
