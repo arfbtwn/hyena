@@ -454,10 +454,11 @@ namespace Hyena
                 }
             }
 
+            var msg = message ?? "Caught an exception";
             if (!severe) {
-                Log.Warning (message, builder.ToString (), false);
+                Log.Warning (msg, builder.ToString (), false);
             } else {
-                Log.Error ("Caught an exception", builder.ToString (), false);
+                Log.Error (msg, builder.ToString (), false);
             }
         }
 
