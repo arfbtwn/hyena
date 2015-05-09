@@ -55,7 +55,7 @@ $(ASSEMBLY_FILE): $(SOURCES_BUILD) $(RESOURCES_EXPANDED) $(DEP_LINK)
 		$(MONO) $(top_builddir)/build/dll-map-verifier.exe $(srcdir)/$(notdir $@.config) -iwinmm -ilibc -ilibc.so.6 -iintl $(SOURCES_BUILD); \
 	fi;
 	$(MCS) \
-		$(GMCS_FLAGS) \
+		$(MCS_FLAGS) \
 		$(ASSEMBLY_BUILD_FLAGS) \
 		$$warn \
 		-debug -target:$(TARGET) -out:$@ \

@@ -34,9 +34,9 @@ AM_CONDITIONAL(ENABLE_RELEASE, test x$enable_release = xyes)
 if test "x$enable_release" = "xyes" ; then
 	CONFIG_REQUESTED="yes"
 else
-	GMCS_FLAGS="-warnaserror"
+	MCS_FLAGS="-warnaserror"
 fi
-AC_SUBST(GMCS_FLAGS)
+AC_SUBST(MCS_FLAGS)
 
 AC_ARG_ENABLE(windows,
 	AC_HELP_STRING([--enable-windows],
@@ -51,9 +51,9 @@ if test -z "$CONFIG_REQUESTED" ; then
 	enable_debug=yes
 fi
 
-dnl Mono and gmcs
-SHAMROCK_CHECK_MONO_MODULE(2.8.2)
-SHAMROCK_FIND_MONO_2_0_COMPILER_OR_HIGHER
+dnl Mono and mcs
+SHAMROCK_CHECK_MONO_MODULE(3.2.8)
+SHAMROCK_FIND_MONO_COMPILER
 SHAMROCK_FIND_MONO_RUNTIME
 
 

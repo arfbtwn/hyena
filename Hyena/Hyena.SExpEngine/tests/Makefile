@@ -4,7 +4,7 @@ ASSEMBLY = eval.exe
 all: $(ASSEMBLY)
 
 $(ASSEMBLY): $(SOURCES)
-	gmcs -out:$@ $(SOURCES)
+	mcs -out:$@ $(SOURCES)
 
 run: all
 	mono $(ASSEMBLY) list.sxp
