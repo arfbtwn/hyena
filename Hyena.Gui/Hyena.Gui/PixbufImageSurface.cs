@@ -177,7 +177,7 @@ namespace Hyena.Gui
             return (byte)(((t >> 8) + t) >> 8);
         }
 
-        [DllImport ("libcairo-2.dll")]
+        [DllImport ("libcairo-2.dll", CallingConvention = CallingConvention.Cdecl)]
         private static extern Cairo.Status cairo_surface_set_user_data (IntPtr surface,
             ref int key, IntPtr userdata, cairo_destroy_func_t destroy);
 

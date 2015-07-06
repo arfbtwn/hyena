@@ -91,10 +91,10 @@ namespace Hyena
             get { return CultureInfo.InvariantCulture; }
         }
 
-        [DllImport ("libc")] // Linux
+        [DllImport ("libc", CallingConvention = CallingConvention.Cdecl)] // Linux
         private static extern int prctl (int option, byte [] arg2, IntPtr arg3, IntPtr arg4, IntPtr arg5);
 
-        [DllImport ("libc")] // BSD
+        [DllImport ("libc", CallingConvention = CallingConvention.Cdecl)] // BSD
         private static extern void setproctitle (byte [] fmt, byte [] str_arg);
 
         private static void SetProcessName (string name)
