@@ -54,7 +54,7 @@ namespace Hyena
                     try {
                         handler.DynamicInvoke (args);
                     } catch (Exception e) {
-                        Log.Exception (e);
+                        Log.Error (e);
                     }
                 }
             }

@@ -63,7 +63,7 @@ namespace Hyena.Metrics
             try {
                 store.Add (new Sample (this, sampleValue));
             } catch (Exception e) {
-                Log.Exception ("Error taking sample", e);
+                Log.Error ("Error taking sample", e);
             }
         }
 
@@ -77,7 +77,7 @@ namespace Hyena.Metrics
             try {
                 store.Add (new Sample (this, sample_func ()));
             } catch (Exception e) {
-                Log.Exception ("Error taking sample", e);
+                Log.Error ("Error taking sample", e);
             }
         }
     }

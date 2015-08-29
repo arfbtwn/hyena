@@ -202,16 +202,18 @@ namespace Hyena
             get { return Scheme == System.Uri.UriSchemeFile; }
         }
 
-        [DllImport ("libglib-2.0-0.dll")]
+        const string GLIB_DLL = "libglib-2.0-0.dll";
+
+        [DllImport (GLIB_DLL, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr g_filename_to_uri_utf8 (IntPtr filename, IntPtr hostname, IntPtr error);
 
-        [DllImport ("libglib-2.0-0.dll")]
+        [DllImport (GLIB_DLL, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr g_filename_from_uri_utf8 (IntPtr uri, IntPtr hostname, IntPtr error);
 
-        [DllImport ("libglib-2.0-0.dll")]
+        [DllImport (GLIB_DLL, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr g_filename_to_uri (IntPtr filename, IntPtr hostname, IntPtr error);
 
-        [DllImport ("libglib-2.0-0.dll")]
+        [DllImport (GLIB_DLL, CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr g_filename_from_uri (IntPtr uri, IntPtr hostname, IntPtr error);
     }
 }

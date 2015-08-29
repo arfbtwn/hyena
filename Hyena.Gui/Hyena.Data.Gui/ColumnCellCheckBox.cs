@@ -55,14 +55,15 @@ namespace Hyena.Data.Gui
             int x = Xpad + ((cell_width - Size) / 2);
             int y = Ypad + ((cell_height - Size) / 2);
 
-            if (context.State == StateFlags.Normal && last_hover_bound == BoundObjectParent) {
-                context.State = StateFlags.Prelight;
+            context.StyleContext.Save ();
+            context.StyleContext.AddClass ("check");
+            if (!context.Selected && last_hover_bound == BoundObjectParent) {
+                context.StyleContext.State |= StateFlags.Prelight;
             }
-            context.Widget.StyleContext.Save ();
-            context.Widget.StyleContext.AddClass ("check");
-            context.Widget.StyleContext.State = (Value ? StateFlags.Active : StateFlags.Normal);
-            context.Widget.StyleContext.RenderCheck (context.Context, x, y, Size, Size);
-            context.Widget.StyleContext.Restore ();
+            context.StyleContext.State |= (Value ? StateFlags.Active : StateFlags.Normal);
+            context.StyleContext.State |= context.State;
+            context.StyleContext.RenderCheck (context.Context, x, y, Size, Size);
+            context.StyleContext.Restore ();
         }
 
         private object last_pressed_bound;
@@ -125,7 +126,7 @@ namespace Hyena.Data.Gui
             set { BoundObject = value; }
         }
 
-        private int size = 13;
+        private int size = 16;
         public int Size {
             get { return size; }
             set { size = value; }

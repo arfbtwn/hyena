@@ -175,7 +175,7 @@ namespace Hyena.Data.Gui
                     return ListViewAccessible<T>.GType;
                 };
             } catch (Exception ex) {
-                Log.Exception ("Initialization of accessibility support for ListView widgets failed", ex);
+                Log.Error ("Initialization of accessibility support for ListView widgets failed", ex);
             }
         }
     }

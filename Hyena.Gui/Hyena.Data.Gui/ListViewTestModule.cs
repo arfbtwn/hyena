@@ -170,13 +170,9 @@ namespace Hyena.Data.Gui.Tests
         }
     }
 
-    internal class Model : IListModel<ModelItem>
+    internal class Model : BaseListModel<ModelItem>
     {
         private List<ModelItem> store = new List<ModelItem> ();
-        private Selection selection = new Selection ();
-
-        public event EventHandler Cleared;
-        public event EventHandler Reloaded;
 
         public Model (int items)
         {
@@ -186,33 +182,23 @@ namespace Hyena.Data.Gui.Tests
             }
         }
 
-        public void Clear ()
+        public override void Clear ()
         {
+            store.Clear ();
+            OnCleared ();
         }
 
-        public void Reload ()
+        public override void Reload ()
         {
+            OnReloaded ();
         }
 
-        public object GetItem (int index)
-        {
-            return this[index];
-        }
-
-        public int Count {
+        public override int Count {
             get { return store.Count; }
         }
 
-        public bool CanReorder {
-            get { return false; }
-        }
-
-        public ModelItem this[int index] {
+        public override ModelItem this[int index] {
             get { return store[index]; }
-        }
-
-        public Selection Selection {
-            get { return selection; }
         }
     }
 

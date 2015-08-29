@@ -279,7 +279,7 @@ namespace Hyena.Collections
 
         private class SyncIntervalHeap : IntervalHeap<T>
         {
-            private IntervalHeap<T> heap;
+            private new IntervalHeap<T> heap;
 
             internal SyncIntervalHeap (IntervalHeap<T> heap)
             {

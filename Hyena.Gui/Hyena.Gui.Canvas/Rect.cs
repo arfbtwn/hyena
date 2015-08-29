@@ -81,7 +81,7 @@ namespace Hyena.Gui.Canvas
             get { return w; }
             set {
                 if (value < 0) {
-                    Log.Exception (String.Format ("Width value to set: {0}", value),
+                    Log.Error (String.Format ("Width value to set: {0}", value),
                                    new ArgumentException ("Width setter should not receive negative values", "value"));
                     value = 0;
                 }
@@ -94,7 +94,7 @@ namespace Hyena.Gui.Canvas
             get { return h; }
             set {
                 if (value < 0) {
-                    Log.Exception (String.Format ("Height value to set: {0}", value),
+                    Log.Error (String.Format ("Height value to set: {0}", value),
                                    new ArgumentException ("Height setter should not receive negative values", "value"));
                     value = 0;
                 }

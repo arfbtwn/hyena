@@ -41,11 +41,7 @@ namespace Hyena.Gui.Theming
         private static Cairo.Color black = new Cairo.Color (0, 0, 0);
         private Stack<ThemeContext> contexts = new Stack<ThemeContext> ();
 
-        private Cairo.Color selection_fill;
         private Cairo.Color selection_stroke;
-
-        private Cairo.Color view_fill;
-        private Cairo.Color view_fill_transparent;
 
         private Cairo.Color text_mid;
 
@@ -66,18 +62,13 @@ namespace Hyena.Gui.Theming
 
         protected virtual void OnColorsRefreshed ()
         {
-            selection_fill = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Active));
-            selection_fill = CairoExtensions.ColorShade (selection_fill, 0.8);
             selection_stroke = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));
 
             Widget.StyleContext.Save ();
             Widget.StyleContext.AddClass ("entry");
-            view_fill = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
+            var view_fill = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
             var text_color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetColor (StateFlags.Normal));
             Widget.StyleContext.Restore ();
-
-            view_fill_transparent = view_fill;
-            view_fill_transparent.A = 0;
 
             text_mid = CairoExtensions.AlphaBlend (view_fill, text_color, 0.5);
         }
@@ -134,60 +125,7 @@ namespace Hyena.Gui.Theming
 
         public abstract void DrawFrameBorder (Cairo.Context cr, Gdk.Rectangle alloc);
 
-        public abstract void DrawHeaderBackground (Cairo.Context cr, Gdk.Rectangle alloc);
-
-        public abstract void DrawColumnHeaderFocus (Cairo.Context cr, Gdk.Rectangle alloc);
-
-        public abstract void DrawHeaderSeparator (Cairo.Context cr, Gdk.Rectangle alloc, int x);
-
-        public void DrawListBackground (Cairo.Context cr, Gdk.Rectangle alloc, bool baseColor)
-        {
-            Cairo.Color fill_color;
-            if (baseColor) {
-                Widget.StyleContext.Save ();
-                Widget.StyleContext.AddClass ("entry");
-                fill_color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
-                Widget.StyleContext.Restore ();
-            } else {
-                fill_color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
-            }
-            DrawListBackground (cr, alloc, fill_color);
-        }
-
-        public abstract void DrawListBackground (Cairo.Context cr, Gdk.Rectangle alloc, Cairo.Color color);
-
-        public void DrawColumnHighlight (Cairo.Context cr, double cellWidth, double cellHeight)
-        {
-            Gdk.Rectangle alloc = new Gdk.Rectangle ();
-            alloc.Width = (int)cellWidth;
-            alloc.Height = (int)cellHeight;
-            DrawColumnHighlight (cr, alloc);
-        }
-
-        public void DrawColumnHighlight (Cairo.Context cr, Gdk.Rectangle alloc)
-        {
-            Cairo.Color color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));
-            DrawColumnHighlight (cr, alloc, color);
-        }
-
-        public abstract void DrawColumnHighlight (Cairo.Context cr, Gdk.Rectangle alloc, Cairo.Color color);
-
-        public void DrawRowSelection (Cairo.Context cr, int x, int y, int width, int height)
-        {
-            DrawRowSelection (cr, x, y, width, height, true);
-        }
-
-        public void DrawRowSelection (Cairo.Context cr, int x, int y, int width, int height, bool filled)
-        {
-            Cairo.Color color = CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Selected));
-            DrawRowSelection (cr, x, y, width, height, filled, true, color, CairoCorners.All);
-        }
-
-        public void DrawRowSelection (Cairo.Context cr, int x, int y, int width, int height,
-            bool filled, bool stroked, Cairo.Color color)
-        {
-            DrawRowSelection (cr, x, y, width, height, filled, stroked, color, CairoCorners.All);
-        }
+        public abstract void DrawHighlightFrame (Cairo.Context cr, int x, int y, int width, int height);
 
         public void DrawRowCursor (Cairo.Context cr, int x, int y, int width, int height)
         {
@@ -201,23 +139,6 @@ namespace Hyena.Gui.Theming
         }
 
         public abstract void DrawRowCursor (Cairo.Context cr, int x, int y, int width, int height, Cairo.Color color, CairoCorners corners);
-
-        public abstract void DrawRowSelection (Cairo.Context cr, int x, int y, int width, int height,
-            bool filled, bool stroked, Cairo.Color color, CairoCorners corners);
-
-        public abstract void DrawRowRule (Cairo.Context cr, int x, int y, int width, int height);
-
-        public Cairo.Color ViewFill {
-            get { return view_fill; }
-        }
-
-        public Cairo.Color ViewFillTransparent {
-            get { return view_fill_transparent; }
-        }
-
-        public Cairo.Color SelectionFill {
-            get { return selection_fill; }
-        }
 
         public Cairo.Color SelectionStroke {
             get { return selection_stroke; }

@@ -34,7 +34,6 @@ namespace Hyena.Gui.Theming
 {
     public class GtkTheme : Theme
     {
-        private Cairo.Color rule_color;
         private Cairo.Color border_color;
 
         public GtkTheme (Widget widget) : base (widget)
@@ -51,8 +50,6 @@ namespace Hyena.Gui.Theming
         protected override void OnColorsRefreshed ()
         {
             base.OnColorsRefreshed ();
-
-            rule_color = CairoExtensions.ColorShade (ViewFill, 0.95);
 
             // On Windows we use Normal b/c Active incorrectly returns black (at least on XP)
             // TODO: Check if this is still needed with GTK 3
@@ -169,113 +166,12 @@ namespace Hyena.Gui.Theming
             cr.Stroke ();
         }
 
-        public override void DrawColumnHighlight (Cairo.Context cr, Gdk.Rectangle alloc, Cairo.Color color)
+        public override void DrawHighlightFrame (Cairo.Context cr, int x, int y, int width, int height)
         {
-            Cairo.Color light_color = CairoExtensions.ColorShade (color, 1.6);
-            Cairo.Color dark_color = CairoExtensions.ColorShade (color, 1.3);
-
-            using (var grad = new LinearGradient (alloc.X, alloc.Y, alloc.X, alloc.Bottom - 1)) {
-                grad.AddColorStop (0, light_color);
-                grad.AddColorStop (1, dark_color);
-
-                cr.SetSource (grad);
-                cr.Rectangle (alloc.X + 1.5, alloc.Y + 1.5, alloc.Width - 3, alloc.Height - 2);
-                cr.Fill ();
-            }
-        }
-
-        public override void DrawHeaderBackground (Cairo.Context cr, Gdk.Rectangle alloc)
-        {
-            Cairo.Color gtk_background_color =
-                CairoExtensions.GdkRGBAToCairoColor (Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
-            Cairo.Color light_color = CairoExtensions.ColorShade (gtk_background_color, 1.1);
-            Cairo.Color dark_color = CairoExtensions.ColorShade (gtk_background_color, 0.95);
-
-            CairoCorners corners = CairoCorners.TopLeft | CairoCorners.TopRight;
-
-            using (var grad = new LinearGradient (alloc.X, alloc.Y, alloc.X, alloc.Bottom)) {
-                grad.AddColorStop (0, light_color);
-                grad.AddColorStop (0.75, dark_color);
-                grad.AddColorStop (0, light_color);
-
-                cr.SetSource (grad);
-                CairoExtensions.RoundedRectangle (cr, alloc.X, alloc.Y, alloc.Width, alloc.Height, Context.Radius, corners);
-                cr.Fill ();
-
-                cr.SetSourceColor (border_color);
-                cr.Rectangle (alloc.X, alloc.Bottom, alloc.Width, BorderWidth);
-                cr.Fill ();
-            }
-        }
-
-        public override void DrawColumnHeaderFocus (Cairo.Context cr, Gdk.Rectangle alloc)
-        {
-            double top_offset = 2.0;
-            double right_offset = 2.0;
-
-            double margin = 0.5;
-            double line_width = 0.7;
-
-            Cairo.Color stroke_color = CairoExtensions.ColorShade (
-                CairoExtensions.GdkRGBAToCairoColor (
-                    Widget.StyleContext.GetBackgroundColor (StateFlags.Selected)), 0.8);
-
-            stroke_color.A = 0.1;
-            cr.SetSourceColor (stroke_color);
-
-            CairoExtensions.RoundedRectangle (cr,
-                alloc.X + margin + line_width + right_offset,
-                alloc.Y + margin + line_width + top_offset,
-                alloc.Width - (margin + line_width)*2.0 - right_offset,
-                alloc.Height - (margin + line_width)*2.0 - top_offset,
-                Context.Radius/2.0, CairoCorners.None);
-
-            cr.Fill ();
-
-            stroke_color.A = 1.0;
-            cr.LineWidth = line_width;
-            cr.SetSourceColor (stroke_color);
-            CairoExtensions.RoundedRectangle (cr,
-                alloc.X + margin + line_width + right_offset,
-                alloc.Y + margin + line_width + top_offset,
-                alloc.Width - (line_width + margin)*2.0 - right_offset,
-                alloc.Height - (line_width + margin)*2.0 - right_offset,
-                Context.Radius/2.0, CairoCorners.All);
+            cr.LineWidth = 1.0;
+            cr.SetSourceColor (SelectionStroke);
+            CairoExtensions.RoundedRectangle (cr, x + 0.5, y + 0.5, width - 1, height - 1, Context.Radius);
             cr.Stroke ();
-        }
-
-        public override void DrawHeaderSeparator (Cairo.Context cr, Gdk.Rectangle alloc, int x)
-        {
-            Cairo.Color gtk_background_color = CairoExtensions.GdkRGBAToCairoColor (
-                Widget.StyleContext.GetBackgroundColor (StateFlags.Normal));
-            Cairo.Color dark_color = CairoExtensions.ColorShade (gtk_background_color, 0.80);
-            Cairo.Color light_color = CairoExtensions.ColorShade (gtk_background_color, 1.1);
-
-            int y_1 = alloc.Top + 4;
-            int y_2 = alloc.Bottom - 3;
-
-            cr.LineWidth = 1;
-            cr.Antialias = Cairo.Antialias.None;
-
-            cr.SetSourceColor (dark_color);
-            cr.MoveTo (x, y_1);
-            cr.LineTo (x, y_2);
-            cr.Stroke ();
-
-            cr.SetSourceColor (light_color);
-            cr.MoveTo (x + 1, y_1);
-            cr.LineTo (x + 1, y_2);
-            cr.Stroke ();
-
-            cr.Antialias = Cairo.Antialias.Default;
-        }
-
-        public override void DrawListBackground (Context cr, Gdk.Rectangle alloc, Color color)
-        {
-            color.A = Context.FillAlpha;
-            cr.SetSourceColor (color);
-            cr.Rectangle (alloc.X, alloc.Y, alloc.Width, alloc.Height);
-            cr.Fill ();
         }
 
         public override void DrawRowCursor (Cairo.Context cr, int x, int y, int width, int height,
@@ -286,72 +182,6 @@ namespace Hyena.Gui.Theming
             CairoExtensions.RoundedRectangle (cr, x + cr.LineWidth/2.0, y + cr.LineWidth/2.0,
                 width - cr.LineWidth, height - cr.LineWidth, Context.Radius, corners, true);
             cr.Stroke ();
-        }
-
-        public override void DrawRowSelection (Cairo.Context cr, int x, int y, int width, int height,
-            bool filled, bool stroked, Cairo.Color color, CairoCorners corners)
-        {
-            DrawRowSelection (cr, x, y, width, height, filled, stroked, color, corners, false);
-        }
-
-        public void DrawRowSelection (Cairo.Context cr, int x, int y, int width, int height,
-            bool filled, bool stroked, Cairo.Color color, CairoCorners corners, bool flat_fill)
-        {
-            Cairo.Color selection_color = color;
-            Cairo.Color selection_highlight = CairoExtensions.ColorShade (selection_color, 1.24);
-            Cairo.Color selection_stroke = CairoExtensions.ColorShade (selection_color, 0.85);
-            selection_highlight.A = 0.5;
-            selection_stroke.A = color.A;
-            LinearGradient grad = null;
-
-            if (filled) {
-                if (flat_fill) {
-                    cr.SetSourceColor (selection_color);
-                } else {
-                    Cairo.Color selection_fill_light = CairoExtensions.ColorShade (selection_color, 1.12);
-                    Cairo.Color selection_fill_dark = selection_color;
-
-                    selection_fill_light.A = color.A;
-                    selection_fill_dark.A = color.A;
-
-                    grad = new LinearGradient (x, y, x, y + height);
-                    grad.AddColorStop (0, selection_fill_light);
-                    grad.AddColorStop (0.4, selection_fill_dark);
-                    grad.AddColorStop (1, selection_fill_light);
-
-                    cr.SetSource (grad);
-                }
-
-                CairoExtensions.RoundedRectangle (cr, x, y, width, height, Context.Radius, corners, true);
-                cr.Fill ();
-
-                if (grad != null) {
-                    grad.Dispose ();
-                }
-            }
-
-            if (filled && stroked) {
-                cr.LineWidth = 1.0;
-                cr.SetSourceColor (selection_highlight);
-                CairoExtensions.RoundedRectangle (cr, x + 1.5, y + 1.5, width - 3, height - 3,
-                    Context.Radius - 1, corners, true);
-                cr.Stroke ();
-            }
-
-            if (stroked) {
-                cr.LineWidth = 1.0;
-                cr.SetSourceColor (selection_stroke);
-                CairoExtensions.RoundedRectangle (cr, x + 0.5, y + 0.5, width - 1, height - 1,
-                    Context.Radius, corners, true);
-                cr.Stroke ();
-            }
-        }
-
-        public override void DrawRowRule (Cairo.Context cr, int x, int y, int width, int height)
-        {
-            cr.SetSourceColor (new Cairo.Color (rule_color.R, rule_color.G, rule_color.B, Context.FillAlpha));
-            cr.Rectangle (x, y, width, height);
-            cr.Fill ();
         }
     }
 }

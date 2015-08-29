@@ -83,7 +83,7 @@ namespace Hyena.Widgets
 
                 StyleContext.Save ();
                 StyleContext.AddClass ("menuitem");
-                StyleContext.State = StateFlags.Prelight | StateFlags.Selected;
+                StyleContext.State |= StateFlags.Prelight | StateFlags.Selected;
                 StyleContext.RenderFrame (args.Cr, x, y, width, height);
                 StyleContext.RenderBackground (args.Cr, x, y, width, height);
                 StyleContext.Restore ();
@@ -112,7 +112,7 @@ namespace Hyena.Widgets
                 
                 StyleContext.Save ();
                 StyleContext.AddClass ("menuitem");
-                StyleContext.State = StateFlags.Normal;
+                StyleContext.State |= StateFlags.Normal;
                 StyleContext.RenderFrame (args.Cr, x, y, width, height);
                 StyleContext.RenderBackground (args.Cr, x, y, width, height);
                 StyleContext.Restore ();

@@ -68,6 +68,8 @@
     <Compile Include="Hyena.Metrics\MemorySampleStore.cs" />
     <Compile Include="Hyena.Metrics\Sample.cs" />
     <Compile Include="Hyena.Data.Sqlite\Tests\SqliteTests.cs" />
+    <Compile Include="Hyena.Data.Sqlite\CacheableSqliteModelProvider.cs" />
+    <Compile Include="Hyena.Data.Sqlite\CacheableItem.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Mono.Posix" />

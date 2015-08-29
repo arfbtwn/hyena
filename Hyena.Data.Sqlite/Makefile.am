@@ -4,6 +4,8 @@ LINK = -r:Mono.Posix -r:System -r:System.Core -r:$(DIR_BIN)/Hyena.dll
 
 SOURCES =  \
 	Hyena.Data.Sqlite/ArrayDataReader.cs \
+	Hyena.Data.Sqlite/CacheableItem.cs \
+	Hyena.Data.Sqlite/CacheableSqliteModelProvider.cs \
 	Hyena.Data.Sqlite/DatabaseColumn.cs \
 	Hyena.Data.Sqlite/DatabaseColumnAttribute.cs \
 	Hyena.Data.Sqlite/HyenaSqliteCommand.cs \

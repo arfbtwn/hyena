@@ -120,7 +120,7 @@ namespace Hyena.Data.Sqlite
                 }
             } catch (Exception e) {
                 Log.DebugFormat ("Exception executing command: {0}", command_text ?? command);
-                Log.Exception (e);
+                Log.Error (e);
                 execution_exception = e;
             }
 

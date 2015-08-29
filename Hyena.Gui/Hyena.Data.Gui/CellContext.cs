@@ -43,8 +43,13 @@ namespace Hyena.Data.Gui
         public Pango.Layout Layout { get; set; }
         public Pango.FontDescription FontDescription { get; set; }
         public Gtk.Widget Widget { get; set; }
-        public Gtk.StateFlags State { get; set; }
-        public Gdk.Window Drawable { get; set; }
+        public Gtk.StyleContext StyleContext {
+            get { return Widget.StyleContext; }
+        }
+        public bool Selected { get; set; }
+        public Gtk.StateFlags State {
+            get { return (Selected ? Gtk.StateFlags.Selected : Gtk.StateFlags.Normal); }
+        }
         public Theme Theme { get; set; }
         public Gdk.Rectangle Area { get; set; }
         public Gdk.Rectangle Clip { get; set; }

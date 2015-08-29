@@ -41,7 +41,7 @@ namespace Hyena
         public static readonly string PosixSystemName;
         public static readonly string SystemName;
 
-        [DllImport ("libc")]
+        [DllImport ("libc", CallingConvention = CallingConvention.Cdecl)]
         private static extern int uname (IntPtr utsname);
 
         static PlatformDetection ()

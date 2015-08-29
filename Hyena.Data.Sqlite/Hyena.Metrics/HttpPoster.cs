@@ -67,7 +67,7 @@ namespace Hyena.Metrics
                 }
                 return response.StatusCode == HttpStatusCode.OK;
             } catch (Exception e) {
-                Log.Exception ("Error posting metrics", e);
+                Log.Error ("Error posting metrics", e);
             }
 
             return false;
