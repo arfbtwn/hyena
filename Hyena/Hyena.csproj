@@ -33,7 +33,7 @@
     <DefineConstants>ENABLE_TESTS</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'SubmoduleWindows|AnyCPU' ">
-    <OutputPath>..\..\..\bin\bin</OutputPath>
+    <OutputPath>..\..\..\bin</OutputPath>
     <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -175,11 +175,11 @@
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="nunit.core">
-      <HintPath>..\..\..\bin\bin\nunit.core.dll</HintPath>
+      <HintPath>..\..\..\bin\nunit.core.dll</HintPath>
       <Package>nunit</Package>
     </Reference>
     <Reference Include="Mono.Posix">
-      <HintPath>..\..\..\bin\bin\Mono.Posix.dll</HintPath>
+      <HintPath>..\..\..\bin\Mono.Posix.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.4.8.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
       <Package>nunit</Package>
