@@ -24,15 +24,22 @@ AC_DEFUN([_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES],
 [
 	for asm in $(echo "$*" | cut -d, -f2- | sed 's/\,/ /g')
 	do
-		AC_MSG_CHECKING([for Mono $1 GAC for $asm.dll])
+		AC_MSG_CHECKING([for Mono $2 GAC for $asm.dll])
+		libdir="$($PKG_CONFIG --variable=libdir $1)"
+		prefix="$($PKG_CONFIG --variable=prefix $1)"
 		if test \
-			-e "$($PKG_CONFIG --variable=libdir mono)/mono/$1/$asm.dll" -o \
-			-e "$($PKG_CONFIG --variable=prefix mono)/lib/mono/$1/$asm.dll"; \
+			-e "$libdir/mono/$2/$asm.dll" -o \
+			-e "$prefix/lib/mono/$2/$asm.dll"; \
+			then \
+			AC_MSG_RESULT([found])
+		elif test \
+			-e "$libdir/mono/$2-api/$asm.dll" -o \
+			-e "$prefix/lib/mono/$2-api/$asm.dll"; \
 			then \
 			AC_MSG_RESULT([found])
 		else
 			AC_MSG_RESULT([not found])
-			AC_MSG_ERROR([missing required Mono $1 assembly: $asm.dll])
+			AC_MSG_ERROR([missing required Mono $2 assembly: $asm.dll])
 		fi
 	done
 ])
