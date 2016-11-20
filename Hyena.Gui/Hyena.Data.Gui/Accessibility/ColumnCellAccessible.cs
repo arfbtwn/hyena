@@ -27,10 +27,11 @@
 //
 
 using System;
+using Atk;
 
 namespace Hyena.Data.Gui.Accessibility
 {
-    public class ColumnCellAccessible: Atk.Object, Atk.IComponentImplementor
+    public class ColumnCellAccessible : Atk.Object, Atk.IComponentImplementor
     {
         protected ColumnCell cell;
         protected object bound_object;
@@ -76,6 +77,16 @@ namespace Hyena.Data.Gui.Accessibility
 
         public double Alpha {
             get { return 1.0; }
+        }
+
+        public Layer Layer
+        {
+            get { return Layer.Widget; }
+        }
+
+        public int MdiZorder
+        {
+            get { return 0; }
         }
 
         public bool SetSize (int w, int h)

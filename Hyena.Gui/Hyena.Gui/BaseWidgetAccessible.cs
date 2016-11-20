@@ -56,7 +56,7 @@ namespace Hyena.Gui
         {
         }
 
-        public virtual new Atk.Layer Layer {
+        public Atk.Layer Layer {
             get { return Layer.Widget; }
         }
 
@@ -257,6 +257,11 @@ namespace Hyena.Gui
 
         public double Alpha {
             get { return 1.0; }
+        }
+
+        public int MdiZorder
+        {
+            get { return 0; }
         }
 
         #endregion Atk.Component

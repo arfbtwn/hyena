@@ -113,13 +113,26 @@ namespace Hyena.Widgets
         {
             Window = Parent.Window;
             base.OnRealized ();
+            ComputeLayoutSize ();
         }
 
 #region Size Calculations
 
+        int BaseHeight {
+            get {
+                return bar_height + bar_label_spacing + layout_height;
+            }
+        }
+
+        int ReflectedHeight {
+            get {
+                return reflect ? (int)Math.Ceiling (bar_height * 1.75) : bar_height;
+            }
+        }
+
         protected override void OnGetPreferredHeight (out int minimum_height, out int natural_height)
         {
-            minimum_height = natural_height = 0;
+            minimum_height = natural_height = Math.Max (BaseHeight, ReflectedHeight);
         }
 
         protected override void OnGetPreferredWidth (out int minimum_width, out int natural_width)
@@ -129,11 +142,11 @@ namespace Hyena.Widgets
 
         protected override void OnSizeAllocated (Gdk.Rectangle allocation)
         {
-            int _bar_height = reflect ? (int)Math.Ceiling (bar_height * 1.75) : bar_height;
+            int _bar_height = ReflectedHeight;
 
             if (show_labels) {
                 ComputeLayoutSize ();
-                HeightRequest = Math.Max (bar_height + bar_label_spacing + layout_height, _bar_height);
+                HeightRequest = Math.Max (BaseHeight, _bar_height);
                 WidthRequest = layout_width + (2 * h_padding);
             } else {
                 HeightRequest = _bar_height;
