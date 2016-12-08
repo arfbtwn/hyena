@@ -50,7 +50,7 @@ namespace Hyena.Data.Gui
 
         public ColumnCell (string property, bool expand)
         {
-            Binder = ObjectBinder = new ObjectBinder () { Property = property };
+            Binder = ObjectBinder = new Bound<object> { Property = property };
             Expand = expand;
         }
 

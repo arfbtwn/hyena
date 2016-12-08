@@ -41,6 +41,12 @@ SOURCES =  \
 	Hyena.Data.Gui/ObjectListView.cs \
 	Hyena.Data.Gui/RowActivatedHandler.cs \
 	Hyena.Data.Gui/SortableColumn.cs \
+	Hyena.Data.Gui/TreeView/_TreeViewExtensions.cs \
+	Hyena.Data.Gui/TreeView/Adapters.cs \
+	Hyena.Data.Gui/TreeView/Bound.cs \
+	Hyena.Data.Gui/TreeView/CellBinder.cs \
+	Hyena.Data.Gui/TreeView/ListModel.cs \
+	Hyena.Data.Gui/TreeView/TreeView.cs \
 	Hyena.Gui.Canvas/AnimationManager.cs \
 	Hyena.Gui.Canvas/Brush.cs \
 	Hyena.Gui.Canvas/CanvasHost.cs \

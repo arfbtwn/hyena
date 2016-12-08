@@ -26,6 +26,8 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using Gtk;
+
 namespace Hyena.Data.Gui
 {
     public interface IListView
@@ -37,11 +39,16 @@ namespace Hyena.Data.Gui
         void CenterOn (int index);
         void GrabFocus ();
         ColumnController ColumnController { get; set; }
+
+        Adjustment Vadjustment { get; }
+
+        bool HeaderVisible { get; set; }
     }
 
     public interface IListView<T> : IListView
     {
         void SetModel (IListModel<T> model);
+        void SetModel (IListModel<T> model, double vpos);
         IListModel<T> Model { get; }
     }
 }

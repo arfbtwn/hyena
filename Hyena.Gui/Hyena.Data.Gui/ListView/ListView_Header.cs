@@ -558,7 +558,7 @@ namespace Hyena.Data.Gui
 
 #region Gtk.MenuItem Wrappers for the column context menu
 
-        private class ColumnToggleMenuItem : CheckMenuItem
+        internal class ColumnToggleMenuItem : CheckMenuItem
         {
             private Column column;
             private bool ready = false;
@@ -597,7 +597,7 @@ namespace Hyena.Data.Gui
             }
         }
 
-        private class ColumnHideMenuItem : ImageMenuItem
+        internal class ColumnHideMenuItem : ImageMenuItem
         {
             private Column column;
             private Label label;

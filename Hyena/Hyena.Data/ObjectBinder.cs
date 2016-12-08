@@ -39,12 +39,8 @@ namespace Hyena.Data
 
         public void Bind (object item)
         {
-            BindDataItem (item);
-        }
-
-        public virtual void BindDataItem (object item)
-        {
-            if (item == null) {
+            if (item == null)
+            {
                 BoundObjectParent = null;
                 bound_object = null;
                 return;
@@ -53,15 +49,21 @@ namespace Hyena.Data
             BoundObjectParent = item;
 
             if (Property != null) {
-                EnsurePropertyInfo (Property, ref property_info, BoundObjectParent);
-                bound_object = property_info.GetValue (BoundObjectParent, null);
-
-                if (SubProperty != null) {
-                    EnsurePropertyInfo (SubProperty, ref sub_property_info, bound_object);
-                    bound_object = sub_property_info.GetValue (bound_object, null);
-                }
+                BindDataItem (item);
             } else {
                 bound_object = BoundObjectParent;
+            }
+        }
+
+        public virtual void BindDataItem (object item)
+        {
+            EnsurePropertyInfo (Property, ref property_info, BoundObjectParent);
+            bound_object = property_info.GetValue (BoundObjectParent, null);
+
+            if (SubProperty != null)
+            {
+                EnsurePropertyInfo (SubProperty, ref sub_property_info, bound_object);
+                bound_object = sub_property_info.GetValue (bound_object, null);
             }
         }
 
@@ -84,12 +86,7 @@ namespace Hyena.Data
         private object bound_object;
         public object BoundObject {
             get { return bound_object; }
-            set {
-                if (Property != null) {
-                    EnsurePropertyInfo (Property, ref property_info, BoundObjectParent);
-                    property_info.SetValue (BoundObjectParent, value, null);
-                }
-            }
+            set { bound_object = value; }
         }
 
         public object BoundObjectParent { get; private set; }

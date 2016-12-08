@@ -208,6 +208,12 @@
     <Compile Include="Hyena.Gui.Canvas\TestTile.cs" />
     <Compile Include="Hyena.Gui.Canvas\TextBlock.cs" />
     <Compile Include="Hyena.Gui.Canvas\TextWrap.cs" />
+    <Compile Include="Hyena.Data.Gui\TreeView\TreeView.cs" />
+    <Compile Include="Hyena.Data.Gui\TreeView\ListModel.cs" />
+    <Compile Include="Hyena.Data.Gui\TreeView\_TreeViewExtensions.cs" />
+    <Compile Include="Hyena.Data.Gui\TreeView\Bound.cs" />
+    <Compile Include="Hyena.Data.Gui\TreeView\CellBinder.cs" />
+    <Compile Include="Hyena.Data.Gui\TreeView\Adapters.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -231,5 +237,8 @@
     <Content Include="Hyena.Gui.dll.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Hyena.Data.Gui\TreeView\" />
   </ItemGroup>
 </Project>
