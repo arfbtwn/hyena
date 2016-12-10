@@ -116,12 +116,14 @@ namespace Hyena.Gui.Canvas
 
         protected override void OnGetPreferredHeight (out int minimum_height, out int natural_height)
         {
+            base.OnGetPreferredHeight (out minimum_height, out natural_height);
             var requisition = SizeRequested ();
             minimum_height = natural_height = requisition.Height;
         }
 
         protected override void OnGetPreferredWidth (out int minimum_width, out int natural_width)
         {
+            base.OnGetPreferredWidth (out minimum_width, out natural_width);
             var requisition = SizeRequested ();
             minimum_width = natural_width = requisition.Width;
         }

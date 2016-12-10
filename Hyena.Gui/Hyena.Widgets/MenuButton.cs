@@ -123,11 +123,17 @@ namespace Hyena.Widgets
 
         protected override void OnGetPreferredHeight (out int minimum_height, out int natural_height)
         {
+            base.OnGetPreferredHeight (out minimum_height, out natural_height);
+            box.GetPreferredHeight (out minimum_height, out natural_height);
+            toggle_button.GetPreferredHeight (out minimum_height, out natural_height);
             size_widget.GetPreferredHeight (out minimum_height, out natural_height);
         }
 
         protected override void OnGetPreferredWidth (out int minimum_width, out int natural_width)
         {
+            base.OnGetPreferredWidth (out minimum_width, out natural_width);
+            toggle_button.GetPreferredWidth (out minimum_width, out natural_width);
+            box.GetPreferredWidth (out minimum_width, out natural_width);
             size_widget.GetPreferredWidth (out minimum_width, out natural_width);
         }
 
