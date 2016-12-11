@@ -40,6 +40,7 @@ namespace Hyena.Widgets
         private Widget button_widget;
         private Menu menu;
         private Widget size_widget;
+        private IconSize icon_size = IconSize.LargeToolbar;
 
         protected MenuButton (IntPtr ptr) : base (ptr) {}
 
@@ -50,6 +51,32 @@ namespace Hyena.Widgets
         public MenuButton (Widget buttonWidget, Menu menu, bool showArrow)
         {
             Construct (buttonWidget, menu, showArrow);
+        }
+
+        public IconSize IconSize
+        {
+            get { return icon_size; }
+            set
+            {
+                icon_size = value;
+                _RecursiveSetImageSize (this, value);
+            }
+        }
+
+        void _RecursiveSetImageSize (Widget widget, IconSize size)
+        {
+            if (widget is Container)
+            {
+                foreach (var child in ((Container) widget).Children)
+                {
+                    _RecursiveSetImageSize (child, size);
+                }
+            }
+
+            if (widget is Image)
+            {
+                ((Image) widget).IconSize = (int) size;
+            }
         }
 
         protected void Construct (Widget buttonWidget, Menu menu, bool showArrow)
@@ -69,10 +96,12 @@ namespace Hyena.Widgets
 
             if (showArrow) {
                 box.PackStart (button_widget, true, true, 0);
-                alignment = new Alignment (0f, 0.5f, 0f, 0f);
+                alignment = new Alignment (0f, 0.5f, 0f, 0f) {
+                    MarginRight = 10
+                };
                 arrow = new Arrow (ArrowType.Down, ShadowType.None);
                 alignment.Add (arrow);
-                box.PackStart (alignment, false, false, 5);
+                box.PackStart (alignment, false, false, 0);
                 size_widget = box;
                 FocusChain = new Widget[] {toggle_button, box};
                 alignment.ShowAll ();
