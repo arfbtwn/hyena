@@ -30,7 +30,6 @@ using System;
 
 namespace Hyena.Data
 {
-    //TODO: inherit from IEnumerable, so the .Any() Linq method can be used, which is more efficient than comparing Count to 0
     public interface IListModel : ISelectable
     {
         event EventHandler Cleared;
