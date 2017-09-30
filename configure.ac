@@ -4,6 +4,7 @@ AC_PREREQ([2.54])
 AC_INIT([hyena], [0.5])
 AM_INIT_AUTOMAKE([foreign dist-bzip2 tar-ustar])
 AM_MAINTAINER_MODE
+AC_CONFIG_MACRO_DIRS([build/m4 build/m4/shamrock])
 AC_SUBST([ACLOCAL_AMFLAGS], ["-I build/m4/shamrock \${ACLOCAL_FLAGS}"])
 
 dnl pkg-config

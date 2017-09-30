@@ -22,17 +22,14 @@ AC_DEFUN([SHAMROCK_CHECK_MONO_MODULE_NOBAIL],
 
 AC_DEFUN([_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES],
 [
-	for asm in $(echo "$*" | cut -d, -f2- | sed 's/\,/ /g')
+	for asm in $(echo "$*" | cut -d, -f3- | sed 's/\,/ /g')
 	do
 		AC_MSG_CHECKING([for Mono $2 GAC for $asm.dll])
 		libdir="$($PKG_CONFIG --variable=libdir $1)"
 		prefix="$($PKG_CONFIG --variable=prefix $1)"
 		if test \
 			-e "$libdir/mono/$2/$asm.dll" -o \
-			-e "$prefix/lib/mono/$2/$asm.dll"; \
-			then \
-			AC_MSG_RESULT([found])
-		elif test \
+			-e "$prefix/lib/mono/$2/$asm.dll" -o \
 			-e "$libdir/mono/$2-api/$asm.dll" -o \
 			-e "$prefix/lib/mono/$2-api/$asm.dll"; \
 			then \
@@ -46,20 +43,36 @@ AC_DEFUN([_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES],
 
 AC_DEFUN([SHAMROCK_CHECK_MONO_1_0_GAC_ASSEMBLIES],
 [
-	_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES(1.0, $*)
+	_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES(mono, 1.0, $*)
 ])
 
 AC_DEFUN([SHAMROCK_CHECK_MONO_2_0_GAC_ASSEMBLIES],
 [
-	_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES(2.0, $*)
+	_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES(mono, 2.0, $*)
+])
+
+AC_DEFUN([SHAMROCK_CHECK_MONO2_2_0_GAC_ASSEMBLIES],
+[
+	_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES(mono-2, 2.0, $*)
 ])
 
 AC_DEFUN([SHAMROCK_CHECK_MONO_4_0_GAC_ASSEMBLIES],
 [
-	_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES(4.0, $*)
+	_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES(mono, 4.0, $*)
+])
+
+AC_DEFUN([SHAMROCK_CHECK_MONO2_4_0_GAC_ASSEMBLIES],
+[
+	_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES(mono-2, 4.0, $*)
 ])
 
 AC_DEFUN([SHAMROCK_CHECK_MONO_4_5_GAC_ASSEMBLIES],
 [
-	_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES(4.5, $*)
+	_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES(mono, 4.5, $*)
 ])
+
+AC_DEFUN([SHAMROCK_CHECK_MONO2_4_5_GAC_ASSEMBLIES],
+[
+	_SHAMROCK_CHECK_MONO_GAC_ASSEMBLIES(mono-2, 4.5, $*)
+])
+
