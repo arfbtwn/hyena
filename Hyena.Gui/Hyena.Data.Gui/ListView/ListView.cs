@@ -59,7 +59,7 @@ namespace Hyena.Data.Gui
                 if (ViewLayout != null) {
                     var pt = new Point (args.X - list_interaction_alloc.X, args.Y - list_interaction_alloc.Y);
                     var child = ViewLayout.FindChildAtPoint (pt);
-                    if (child != null) {
+                    if (child != null && child.Visible) {
                         string markup;
                         Rect area;
                         pt.Offset (ViewLayout.ActualAllocation.Point);

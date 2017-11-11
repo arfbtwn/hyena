@@ -531,8 +531,11 @@ namespace Hyena.Data.Gui
                 var child_allocation = layout_child.Allocation;
 
                 if (!child_allocation.IntersectsWith (clip) || ViewLayout.GetModelIndex (layout_child) >= Model.Count) {
+                    layout_child.Visible = false;
                     continue;
                 }
+
+                layout_child.Visible = true;
 
                 if (Selection != null && Selection.Contains (ViewLayout.GetModelIndex (layout_child))) {
                     selected_rows.Add (ViewLayout.GetModelIndex (layout_child));
