@@ -15,3 +15,7 @@ missing
 Hyena/obj
 Hyena.Gui/obj
 Hyena.Data.Sqlite/obj
+
+# vim
+*.swp
+*~
