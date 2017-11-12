@@ -85,6 +85,8 @@ namespace Hyena.Data.Gui
             MoveResize (Allocation);
 
             base.OnRealized ();
+
+            OnStyleUpdated ();
         }
 
         protected override void OnUnrealized ()
