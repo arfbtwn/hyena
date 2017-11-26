@@ -474,7 +474,7 @@ namespace Hyena.Data.Gui
             cell.Render (cell_context, area.Width, area.Height);
             cr.Restore ();
 
-            //AccessibleCellRedrawn (column_index, row_index);
+            AccessibleCellRedrawn (column_index, row_index);
         }
 
         private void PaintDraggingColumn (Cairo.Context cr)
