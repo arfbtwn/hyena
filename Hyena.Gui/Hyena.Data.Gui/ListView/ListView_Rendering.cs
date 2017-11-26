@@ -28,6 +28,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Gtk;
 using Gdk;
@@ -135,7 +136,6 @@ namespace Hyena.Data.Gui
             if (header_visible && ViewLayout == null && column_controller != null) {
                 PaintHeader (cr);
             }
-
 
             if (Model != null) {
                 // FIXME: ViewLayout will never be null in
@@ -596,9 +596,20 @@ namespace Hyena.Data.Gui
 
         protected virtual Gdk.Size OnMeasureChild ()
         {
-            return ViewLayout != null
-                ? new Gdk.Size ((int)ViewLayout.ChildSize.Width, (int)ViewLayout.ChildSize.Height)
-                : new Gdk.Size (0, ColumnCellText.ComputeRowHeight (this));
+            if (null != ViewLayout) {
+                return new Gdk.Size ((int) ViewLayout.ChildSize.Width, (int) ViewLayout.ChildSize.Height);
+            }
+
+            var sizes = ColumnController
+                .Where      (x => x.Visible)
+                .SelectMany (x => x.Select (y => y.FixedSize))
+                .Except     (new Hyena.Gui.Canvas.Size?[] { null })
+                .ToArray    ();
+
+            var w = sizes.Max (x => x?.Width) ?? 0;
+            var h = sizes.Max (x => x?.Width) ?? ColumnCellText.ComputeRowHeight (this);
+
+            return new Gdk.Size ((int) w, (int) h);
         }
 
         private bool OnMeasure ()

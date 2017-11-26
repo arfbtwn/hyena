@@ -264,7 +264,7 @@ namespace Hyena.Data.Gui
         {
             InvalidateColumnCache ();
             RegenerateColumnCache ();
-            QueueDirtyRegion ();
+            OnInvalidateMeasure ();
         }
 
         protected virtual void OnColumnLeftClicked (Column clickedColumn)
