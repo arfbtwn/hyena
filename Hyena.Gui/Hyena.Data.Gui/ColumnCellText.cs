@@ -57,10 +57,10 @@ namespace Hyena.Data.Gui
             SingleParagraphMode = true;
         }
 
-        //public override Atk.Object GetAccessible (ICellAccessibleParent parent)
-        //{
-        //    return new ColumnCellTextAccessible (BoundObject, this, parent);
-        //}
+        public override Atk.Object GetAccessible (ICellAccessibleParent parent)
+        {
+           return new ColumnCellTextAccessible (BoundObject, this, parent);
+        }
 
         public override string GetTextAlternative (object obj)
         {

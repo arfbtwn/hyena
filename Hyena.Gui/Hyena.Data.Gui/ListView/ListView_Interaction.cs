@@ -260,7 +260,7 @@ namespace Hyena.Data.Gui
             case Gdk.Key.Menu:
                 // OnPopupMenu() is reserved for list items in derived classes.
                 if (HeaderFocused) {
-                    //InvokeColumnHeaderMenu (ActiveColumn);
+                    InvokeColumnHeaderMenu (ActiveColumn);
                     handled = true;
                 }
                 break;

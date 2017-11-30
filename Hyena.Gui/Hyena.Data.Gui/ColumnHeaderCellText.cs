@@ -47,10 +47,10 @@ namespace Hyena.Data.Gui
             this.data_handler = data_handler;
         }
 
-        //public override Atk.Object GetAccessible (ICellAccessibleParent parent)
-        //{
-        //    return new  ColumnHeaderCellTextAccessible (BoundObject, this, parent);
-        //}
+        public override Atk.Object GetAccessible (ICellAccessibleParent parent)
+        {
+           return new  ColumnHeaderCellTextAccessible (BoundObject, this, parent);
+        }
 
         public override void Render (CellContext context, double cellWidth, double cellHeight)
         {

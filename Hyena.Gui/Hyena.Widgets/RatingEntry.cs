@@ -49,7 +49,7 @@ namespace Hyena.Widgets
 
         static RatingEntry ()
         {
-            //RatingAccessibleFactory.Init ();
+            RatingAccessibleFactory.Init ();
         }
 
         public RatingEntry () : this (0)
@@ -406,71 +406,103 @@ namespace Hyena.Widgets
 
     }
 
-    //public class RatingAccessible : Atk.Object, Atk.IValue, Atk.IValueImplementor
-    //{
-    //    private RatingEntry rating;
+    public class RatingAccessible : Atk.Object, Atk.IValue, Atk.IValueImplementor
+    {
+        private RatingEntry rating;
 
-    //    public RatingAccessible (IntPtr raw) : base (raw)
-    //    {
-    //        Hyena.Log.Information ("RatingAccessible raw ctor..");
-    //    }
+        public event Atk.ValueChangedHandler ValueChanged;
 
-    //    public RatingAccessible (GLib.Object widget): base ()
-    //    {
-    //        rating = widget as RatingEntry;
-    //        Name = "Rating entry";
-    //        Description = "Rating entry, from 0 to 5 stars";
-    //        Role = Atk.Role.Slider;
-    //    }
+        public RatingAccessible (IntPtr raw) : base (raw)
+        {
+            Hyena.Log.Information ("RatingAccessible raw ctor..");
+        }
 
-    //    public void GetMaximumValue (ref GLib.Value val)
-    //    {
-    //        val = new GLib.Value (5);
-    //    }
+        public RatingAccessible (GLib.Object widget): base ()
+        {
+            rating = widget as RatingEntry;
+            Name = "Rating entry";
+            Description = "Rating entry, from 0 to 5 stars";
+            Role = Atk.Role.Slider;
+        }
 
-    //    public void GetMinimumIncrement (ref GLib.Value val)
-    //    {
-    //        val = new GLib.Value (1);
-    //    }
+        public double Increment
+        {
+            get { return ++rating.Value; }
+        }
 
-    //    public void GetMinimumValue (ref GLib.Value val)
-    //    {
-    //        val = new GLib.Value (0);
-    //    }
+        public Atk.Range Range
+        {
+            get { return new Atk.Range (0, 5, Description); }
+        }
 
-    //    public void GetCurrentValue (ref GLib.Value val)
-    //    {
-    //        val = new GLib.Value (rating.Value);
-    //    }
+        public GLib.SList SubRanges
+        {
+            get { return null; }
+        }
 
-    //    public bool SetCurrentValue (GLib.Value val)
-    //    {
-    //        int r = (int) val.Val;
-    //        if (r <= 0 || r > 5) {
-    //            return false;
-    //        }
+        public double Value
+        {
+            set { rating.Value = (int) value; }
+        }
 
-    //        rating.Value = (int)val.Val;
+        public void GetMaximumValue (ref GLib.Value val)
+        {
+            val = new GLib.Value (5);
+        }
 
-    //        return true;
-    //    }
-    //}
+        public void GetMinimumIncrement (ref GLib.Value val)
+        {
+            val = new GLib.Value (1);
+        }
 
-    //internal class RatingAccessibleFactory : Atk.ObjectFactory
-    //{
-    //    public static void Init ()
-    //    {
-    //        new RatingAccessibleFactory ();
-    //        Atk.Global.DefaultRegistry.SetFactoryType ((GLib.GType)typeof (RatingEntry), (GLib.GType)typeof (RatingAccessibleFactory));
-    //        CreateAccessibleHandler = (obj) => {
-    //            return new RatingAccessible (obj);
-    //        };
-    //        GetAccessibleTypeHandler = () => {
-    //            return RatingAccessible.GType;
-    //        };
+        public void GetMinimumValue (ref GLib.Value val)
+        {
+            val = new GLib.Value (0);
+        }
 
-    //    }
-    //}
+        public void GetCurrentValue (ref GLib.Value val)
+        {
+            val = new GLib.Value (rating.Value);
+        }
+
+        public bool SetCurrentValue (GLib.Value val)
+        {
+            int r = (int) val.Val;
+            if (r <= 0 || r > 5) {
+                return false;
+            }
+
+            rating.Value = (int)val.Val;
+
+            return true;
+        }
+
+        public double GetValueAndText(string text)
+        {
+            return rating.Value;
+        }
+
+        public void GetValueAndText(out double val, string text)
+        {
+            val = rating.Value;
+        }
+    }
+
+    internal class RatingAccessibleFactory : Atk.ObjectFactory
+    {
+       public static void Init ()
+       {
+           new RatingAccessibleFactory ();
+           Atk.Global.DefaultRegistry.SetFactoryType ((GLib.GType)typeof (RatingEntry), (GLib.GType)typeof (RatingAccessibleFactory));
+           CreateAccessibleHandler = (obj) => {
+               return new RatingAccessible (obj);
+           };
+           GetAccessibleTypeHandler = () => {
+               return RatingAccessible.GType;
+           };
+
+       }
+    }
 
 #region Test Module
 
