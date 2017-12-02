@@ -159,7 +159,7 @@ namespace Hyena.Data.Sqlite
             return builder.ToString ();
         }
 
-        static HashSet<Type> enum_types = new HashSet<Type> ();
+        readonly static HashSet<Type> enum_types = new HashSet<Type> ();
     }
 
     [SqliteFunction (Name = "HYENA_BINARY_FUNCTION", FuncType = FunctionType.Scalar, Arguments = 3)]
