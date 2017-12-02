@@ -94,7 +94,6 @@ namespace Hyena.Data.Gui
         private void RefreshViewForModel (double? vpos)
         {
             if (Model == null) {
-                UpdateAdjustments ();
                 QueueDraw ();
                 return;
             }

@@ -264,7 +264,6 @@ namespace Hyena.Data.Gui
         {
             InvalidateColumnCache ();
             RegenerateColumnCache ();
-            UpdateAdjustments ();
             QueueDirtyRegion ();
         }
 

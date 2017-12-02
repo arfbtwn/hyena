@@ -196,7 +196,6 @@ namespace Hyena.Data.Gui
                 hadjustment.PageIncrement = header_interaction_alloc.Width;
                 vadjustment.PageSize = list_rendering_alloc.Height;
                 vadjustment.PageIncrement = list_rendering_alloc.Height;
-                UpdateAdjustments ();
             }
 
             ICareAboutView model = Model as ICareAboutView;
