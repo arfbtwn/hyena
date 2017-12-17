@@ -410,7 +410,9 @@ namespace Hyena.Widgets
     {
         private RatingEntry rating;
 
+#if false
         public event Atk.ValueChangedHandler ValueChanged;
+#endif
 
         public RatingAccessible (IntPtr raw) : base (raw)
         {
@@ -430,10 +432,12 @@ namespace Hyena.Widgets
             get { return ++rating.Value; }
         }
 
+#if false
         public Atk.Range Range
         {
             get { return new Atk.Range (0, 5, Description); }
         }
+#endif
 
         public GLib.SList SubRanges
         {
